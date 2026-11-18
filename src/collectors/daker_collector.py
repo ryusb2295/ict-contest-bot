@@ -17,6 +17,7 @@ from src.models import Contest
 
 logger = logging.getLogger(__name__)
 LIST_URL = "https://daker.ai/public/hackathons"
+BACKUP_LIST_URL = "https://deck.dacon.io/"
 
 
 def _submission_deadline(text: str) -> Optional[str]:
@@ -59,21 +60,27 @@ class DakerCollector(BaseCollector):
 
     def collect(self) -> List[Contest]:
         listing = self._fetch(LIST_URL)
-        if listing is None:
-            return []
-
         links = {}
-        for anchor in listing.select('a[href*="/hackathons/"]'):
-            url = urljoin(LIST_URL, anchor.get("href", ""))
-            parsed = urlparse(url)
-            if parsed.hostname not in ("daker.ai", "www.daker.ai"):
+        for page_url, page in ((LIST_URL, listing), (BACKUP_LIST_URL, None)):
+            if page is None:
+                page = self._fetch(page_url)
+            if page is None:
                 continue
-            if not re.fullmatch(r"/(?:public/)?hackathons/[^/]+", parsed.path):
-                continue
-            links[url] = anchor.get_text(" ", strip=True)
+            for anchor in page.select('a[href*="/hackathons/"]'):
+                url = urljoin(page_url, anchor.get("href", ""))
+                parsed = urlparse(url)
+                if parsed.hostname not in ("daker.ai", "www.daker.ai"):
+                    continue
+                if not re.fullmatch(r"/(?:public/)?hackathons/[^/]+", parsed.path):
+                    continue
+                links[url] = anchor.get_text(" ", strip=True)
+            if links:
+                break
+        logger.info("DAKER listing found %d candidate links.", len(links))
 
         contests: List[Contest] = []
         today = get_current_kst_date()
+        missing_deadline = 0
         for url, list_title in list(links.items())[:self.max_items]:
             detail = self._fetch(url)
             if detail is None:
@@ -84,7 +91,10 @@ class DakerCollector(BaseCollector):
             if not title or not any(word in text for word in ("누구나", "대학생", "학생", "일반인")):
                 continue
             deadline = _submission_deadline(text)
-            if not deadline or deadline < today.isoformat():
+            if not deadline:
+                missing_deadline += 1
+                continue
+            if deadline < today.isoformat():
                 continue
             contests.append(Contest.create(
                 title=title,
@@ -96,5 +106,5 @@ class DakerCollector(BaseCollector):
                 discovered_at=get_current_kst_datetime().isoformat(),
             ))
 
-        logger.info("DAKER collected %d open hackathons.", len(contests))
+        logger.info("DAKER collected %d open hackathons (%d without a verified deadline).", len(contests), missing_deadline)
         return contests

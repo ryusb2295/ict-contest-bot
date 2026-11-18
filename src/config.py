@@ -54,7 +54,7 @@ class Config:
         default_factory=lambda: os.getenv("GEMINI_API_KEY", "").strip()
     )
     gemini_model: str = field(
-        default_factory=lambda: os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip()
+        default_factory=lambda: os.getenv("GEMINI_MODEL", "gemini-3.8-flash").strip()
     )
     timezone: str = field(
         default_factory=lambda: os.getenv("TZ", "Asia/Seoul").strip()

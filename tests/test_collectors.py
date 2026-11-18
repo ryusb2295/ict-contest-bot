@@ -45,6 +45,23 @@ class TestCollectors(unittest.TestCase):
         self.assertEqual(contests[0].apply_end, "2026-11-20")
         self.assertEqual(contests[0].source, "daker")
 
+    def test_daker_uses_backup_listing_when_primary_is_empty(self):
+        backup = BeautifulSoup(
+            '<a href="https://daker.ai/hackathons/jeju-ai-agent">제주 AI Agent 개발 챌린지</a>',
+            "html.parser",
+        )
+        detail = BeautifulSoup(
+            '<h1>제주 AI Agent 개발 챌린지</h1><p>학생 누구나 참가 가능</p>'
+            '<p>최종 결과물 제출: 2026년 10월 26일 ~ 11월 20일</p>',
+            "html.parser",
+        )
+        collector = DakerCollector()
+        with patch("src.collectors.daker_collector.get_current_kst_date", return_value=date(2026, 11, 19)):
+            with patch.object(collector, "_fetch", side_effect=[BeautifulSoup("", "html.parser"), backup, detail]) as fetch:
+                contests = collector.collect()
+        self.assertEqual(fetch.call_count, 3)
+        self.assertEqual(len(contests), 1)
+
     def test_wevity_scans_idea_and_later_pages(self):
         def listing(title, ix):
             return BeautifulSoup(

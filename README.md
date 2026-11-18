@@ -58,7 +58,7 @@ GitHub에서 실제 알림을 시험할 때는 **Actions → Daily ICT Contest A
 |--------|------|------|
 | `DISCORD_WEBHOOK_URL` | ✅ | Discord 채널 설정 → 연동 → 웹후크에서 복사 |
 | `GEMINI_API_KEY` | 권장 | [Google AI Studio](https://aistudio.google.com)에서 발급. 없으면 Wevity 폴백만 사용 |
-| `GEMINI_MODEL` | 선택 | 기본값 `gemini-2.5-flash` |
+| `GEMINI_MODEL` | 선택 | 기본값 `gemini-3.8-flash` |
 | `ALERT_DAYS` | 선택 | 마감 알림 기준일 (기본값 `7,3,1`) |
 
 ## GitHub Actions 설정
