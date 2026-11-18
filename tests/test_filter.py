@@ -12,6 +12,12 @@ class TestFilter(unittest.TestCase):
         self.assertTrue(is_relevant_major("임베디드 IoT 로봇 SW 개발 경연"))
         self.assertTrue(is_relevant_major("클라우드 기반 웹/앱 서비스 개발 공모전"))
         self.assertTrue(is_relevant_major("사이버 보안 해킹 방어대회 (CTF)"))
+        self.assertTrue(is_relevant_major("사회보장 데이터를 활용한 AI 혁신 아이디어 경진대회"))
+        self.assertTrue(is_relevant_major("임베디드 SW 자유공모 경진대회"))
+        self.assertTrue(is_relevant_major("AI Matter 경진대회"))
+        self.assertTrue(is_relevant_major("제주 AI Agent 개발 챌린지"))
+        self.assertTrue(is_relevant_major("LLM 모델 개발 공모전"))
+        self.assertTrue(is_relevant_major("블록체인 보안 기술 경진대회"))
 
     def test_is_relevant_major_negative(self):
         self.assertFalse(is_relevant_major("제3회 청소년 백일장 시 수필 공모전"))
@@ -20,6 +26,12 @@ class TestFilter(unittest.TestCase):
         self.assertFalse(is_relevant_major("전국 노래자랑 및 댄스 경연대회"))
         # Verify that generic words like "Asian" do not trigger AI
         self.assertFalse(is_relevant_major("7th Da-Ho Award Asian International Short Film Competition"))
+        self.assertFalse(is_relevant_major("제천시장배 전국 e-스포츠 대회", "게임/소프트웨어"))
+        self.assertFalse(is_relevant_major("AI 광고 제작 공모전", "웹/모바일/IT"))
+        self.assertFalse(is_relevant_major("AI 영상 공모전", "웹/모바일/IT"))
+        self.assertFalse(is_relevant_major("AI 달인의 꿀팁 챌린지 시즌4"))
+        self.assertFalse(is_relevant_major("AI 포스터 디자인 챌린지"))
+        self.assertFalse(is_relevant_major("AI 창조공모대전", "웹/모바일/IT"))
 
     def test_is_eligible_student_positive(self):
         self.assertTrue(is_eligible_student("전국 대학생 및 대학원생"))

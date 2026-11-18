@@ -104,6 +104,19 @@ class ContestBot:
                     self.storage.mark_closed(contest.id)
                 continue
 
+            # Recheck old stored items so previously accepted creative contests
+            # do not keep appearing in the daily digest.
+            is_valid, _ = filter_contest(
+                title=contest.title,
+                target=contest.target,
+                category=contest.category,
+                description=contest.description or "",
+                apply_end=contest.apply_end,
+                today=today,
+            )
+            if not is_valid:
+                continue
+
             announcements[contest.id] = (
                 contest, "NEW" if not contest.has_alert_sent("NEW") else "ONGOING"
             )

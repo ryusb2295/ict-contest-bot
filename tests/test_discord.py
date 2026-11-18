@@ -25,8 +25,27 @@ class TestDiscord(unittest.TestCase):
         self.assertEqual([c.title for c, _ in included], ["빠른 공모전", "늦은 공모전", "날짜 미확인"])
         description = post.call_args.args[0]["embeds"][0]["description"]
         self.assertLess(description.index("빠른 공모전"), description.index("늦은 공모전"))
-        self.assertIn("**2026-11-20** (D-1)", description)
+        self.assertIn("마감 **2026.11.20 · D-1**", description)
         self.assertIn("[빠른 공모전](https://example.com/sooner)", description)
+        self.assertIn("주최", description)
+        self.assertIn("대상", description)
+
+    def test_long_digest_uses_multiple_embeds_in_one_message(self):
+        client = DiscordWebhookClient(webhook_url="https://discord.com/api/webhooks/mock")
+        contests = [
+            Contest.create(
+                title=f"AI Agent 개발 경진대회 {i} " + "기술" * 60,
+                url=f"https://example.com/contest/{i}",
+                apply_end="2026-12-10",
+            )
+            for i in range(22)
+        ]
+        with patch.object(client, "_post_payload", return_value=(True, "SUCCESS")) as post:
+            success, _, included = client.send_digest([(item, "NEW") for item in contests])
+        self.assertTrue(success)
+        self.assertEqual(post.call_count, 1)
+        self.assertEqual(len(post.call_args.args[0]["embeds"]), 2)
+        self.assertEqual(len(included), len(contests))
 
     def test_dry_run_and_failed_send_do_not_claim_alerts(self):
         client = DiscordWebhookClient(webhook_url="")

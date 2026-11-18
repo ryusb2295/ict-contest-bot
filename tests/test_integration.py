@@ -17,7 +17,7 @@ class TestBotIntegration(unittest.TestCase):
             bot = ContestBot()
             bot.storage = bot.storage.__class__(Path(tmp_dir) / "contests.json")
             existing = Contest.create(
-                title="대학생 AI 마감 임박 공모전",
+                title="대학생 AI 모델 개발 마감 임박 공모전",
                 url="https://example.com/due",
                 target="대학생",
                 apply_end="2026-11-20",
@@ -29,12 +29,18 @@ class TestBotIntegration(unittest.TestCase):
                 apply_end="2026-11-30",
             )
             ongoing = Contest.create(
-                title="대학생 데이터 진행 중 공모전",
+                title="대학생 데이터 분석 진행 중 공모전",
                 url="https://example.com/ongoing",
                 target="대학생",
                 apply_end="2026-12-15",
             )
-            bot.storage.add_or_update([existing, ongoing])
+            creative = Contest.create(
+                title="AI 광고 제작 공모전",
+                url="https://example.com/creative",
+                target="누구나",
+                apply_end="2026-12-20",
+            )
+            bot.storage.add_or_update([existing, ongoing, creative])
             bot.storage.mark_alert_sent(existing.id, "NEW")
             bot.storage.mark_alert_sent(ongoing.id, "NEW")
 
@@ -49,6 +55,7 @@ class TestBotIntegration(unittest.TestCase):
             description = post.call_args.args[0]["embeds"][0]["description"]
             self.assertLess(description.index(existing.title), description.index(new.title))
             self.assertIn(ongoing.title, description)
+            self.assertNotIn(creative.title, description)
             self.assertEqual(result["deadline_alerts"], 1)
             self.assertEqual(bot.storage.last_digest_date, "2026-11-19")
             self.assertIn("D-1", bot.storage.get_contest(existing.id).alert_history)

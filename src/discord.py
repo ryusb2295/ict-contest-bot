@@ -178,42 +178,55 @@ class DiscordWebhookClient:
                 return "9999-12-31", contest.title
 
         ordered = sorted(announcements, key=sort_key)
-        lines: List[str] = []
+        chunks: List[str] = [""]
         included: List[Tuple[Contest, str]] = []
-        # Discord limits one embed description to 4096 characters.
-        limit = 3900
+        # Discord permits up to 4096 characters per embed and 6000 total.
+        max_chunk = 3400
+        max_total = 5400
         for contest, stage in ordered:
             days_left = contest.days_until_deadline(today)
-            deadline = contest.apply_end or "마감일 미확인"
+            deadline = contest.apply_end.replace("-", ".") if contest.apply_end else "마감일 미확인"
             d_day = (f"D-{days_left}" if days_left is not None and days_left > 0
                      else "오늘 마감" if days_left == 0 else "")
             label = "🆕" if stage == "NEW" else "⏰" if stage != "ONGOING" else "•"
-            name = contest.title.replace("\n", " ").replace("\r", " ")[:140]
+            name = contest.title.replace("\n", " ").replace("\r", " ")[:120]
             if contest.url:
                 name = f"[{name}]({contest.url})"
-            line = f"{label} **{deadline}**"
+            line = f"{label} **{len(included) + 1}. {name}**\n마감 **{deadline}"
             if d_day:
-                line += f" ({d_day})"
-            line += f" · {name}"
-            if len("\n".join(lines + [line])) + 60 > limit:
+                line += f" · {d_day}"
+            line += "**"
+            organizer = (contest.organizer or "주최 미확인").replace("\n", " ")[:65]
+            target = (contest.target or "대상 미확인").replace("\n", " ")[:55]
+            line += f" · 주최 {organizer}\n대상 {target}"
+            category = (contest.category or "").replace("\n", " ")[:65]
+            if category and category not in ("웹/모바일/IT", "ICT / SW / AI"):
+                line += f" · 분야 {category}"
+            entry = line + "\n\n"
+            if sum(map(len, chunks)) + len(entry) + 80 > max_total:
                 break
-            lines.append(line)
+            if len(chunks[-1]) + len(entry) > max_chunk:
+                if len(chunks) == 2:
+                    break
+                chunks.append("")
+            chunks[-1] += entry
             included.append((contest, stage))
 
         if not included:
             return False, "첫 공고가 Discord 메시지 길이 제한을 초과했습니다.", []
 
         omitted = len(ordered) - len(included)
-        description = "\n".join(lines)
         if omitted:
-            description += f"\n… 외 {omitted}건 (메시지 길이 제한)"
-        embed = {
-            "title": f"📋 진행 중인 ICT 공모전 · {len(included)}건",
-            "description": description,
-            "color": COLOR_D1 if any(stage == "D-1" for _, stage in included) else COLOR_NEW,
-            "footer": {"text": f"마감일순 · {get_current_kst_datetime().strftime('%Y-%m-%d %H:%M KST')}"},
-        }
-        payload = {"username": "ICT 공모전 봇", "embeds": [embed], "allowed_mentions": {"parse": []}}
+            chunks[-1] += f"… 외 {omitted}건 (Discord 길이 제한)"
+        embeds = []
+        for index, description in enumerate(chunks):
+            embeds.append({
+                "title": (f"📋 진행 중인 ICT 공모전 · {len(included)}건" if index == 0 else "📋 계속"),
+                "description": description.rstrip(),
+                "color": COLOR_D1 if any(stage == "D-1" for _, stage in included) else COLOR_NEW,
+                "footer": {"text": f"마감일순 · {get_current_kst_datetime().strftime('%Y-%m-%d %H:%M KST')}"},
+            })
+        payload = {"username": "ICT 공모전 봇", "embeds": embeds, "allowed_mentions": {"parse": []}}
         success, message = self._post_payload(payload, dry_run=dry_run)
         return success, message, included if success else []
 
