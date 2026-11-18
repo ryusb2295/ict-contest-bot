@@ -1,4 +1,252 @@
 {
-  "updated_at": null,
-  "contests": []
+  "updated_at": "2026-11-18T20:10:25.213985",
+  "contests": [
+    {
+      "id": "4d175f9b22e699a6",
+      "title": "2026 제천시장배 전국 e-스포츠 대회",
+      "organizer": "제천시 / 제천문화관광재단",
+      "category": "게임/소프트웨어",
+      "target": "제한없음",
+      "apply_start": "2026-11-05",
+      "apply_end": "2026-12-07",
+      "event_date": null,
+      "url": "https://www.wevity.com?c=find&s=1&gub=1&cidx=21&gbn=view&gp=1&ix=112329",
+      "description": "",
+      "source": "wevity",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-18T20:09:56.830713+09:00",
+      "last_alert_at": "2026-11-18T20:10:16.310938",
+      "alert_history": [
+        "NEW"
+      ]
+    },
+    {
+      "id": "4a00c98f79004add",
+      "title": "디어비 글로벌 런칭 공모전",
+      "organizer": "DEARBE Corp.",
+      "category": "게임/소프트웨어",
+      "target": "일반인, 대학생",
+      "apply_start": "2026-11-02",
+      "apply_end": "2026-11-22",
+      "event_date": null,
+      "url": "https://www.dearbe.me",
+      "description": "",
+      "source": "wevity",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-18T20:09:56.830713+09:00",
+      "last_alert_at": "2026-11-18T20:10:17.051542",
+      "alert_history": [
+        "NEW"
+      ]
+    },
+    {
+      "id": "1b2b27d078c11dc7",
+      "title": "2026 saaskr 게임 어워드 - AI로 만든 웹게임 연말 시상",
+      "organizer": "saaskr",
+      "category": "게임/소프트웨어",
+      "target": "일반인, 대학생, 청소년",
+      "apply_start": "2026-10-20",
+      "apply_end": "2026-12-20",
+      "event_date": null,
+      "url": "https://game.saaskr.com/awards",
+      "description": "",
+      "source": "wevity",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-18T20:09:56.830713+09:00",
+      "last_alert_at": "2026-11-18T20:10:17.810544",
+      "alert_history": [
+        "NEW"
+      ]
+    },
+    {
+      "id": "b5d5560a53f9e098",
+      "title": "2026 조달청 AI 게임·콘텐츠 공모전",
+      "organizer": "조달청",
+      "category": "게임/소프트웨어",
+      "target": "제한없음",
+      "apply_start": "2026-10-12",
+      "apply_end": "2026-11-22",
+      "event_date": null,
+      "url": "https://blog.naver.com/ppspr/224439199284",
+      "description": "",
+      "source": "wevity",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-18T20:09:56.830713+09:00",
+      "last_alert_at": "2026-11-18T20:10:18.508782",
+      "alert_history": [
+        "NEW"
+      ]
+    },
+    {
+      "id": "ad924ca7940ab61f",
+      "title": "VIVID RE:PLAY 6개 IP로 만드는 AI영상 공모전SPECIAL",
+      "organizer": "(주)아캐인 / VIVID",
+      "category": "광고/마케팅, 영상/UCC/사진, 웹/모바일/IT, 예체능/미술/음악, 기타",
+      "target": "제한없음",
+      "apply_start": "2026-10-30",
+      "apply_end": "2026-12-13",
+      "event_date": null,
+      "url": "https://vo.la/b0TPU9z",
+      "description": "",
+      "source": "wevity",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-18T20:09:56.830713+09:00",
+      "last_alert_at": "2026-11-18T20:10:19.253130",
+      "alert_history": [
+        "NEW"
+      ]
+    },
+    {
+      "id": "f5413d0829123529",
+      "title": "[제3회] 매경 AI 광고 공모전 대한민국 AI 광고대상SPECIALIDEA",
+      "organizer": "매경미디어 / 매경ECONOMY · MINDSPARK · 매경AX",
+      "category": "기획/아이디어, 광고/마케팅, 영상/UCC/사진, 웹/모바일/IT, 예체능/미술/음악",
+      "target": "일반인, 대학생, 청소년",
+      "apply_start": "2026-11-09",
+      "apply_end": "2026-11-30",
+      "event_date": null,
+      "url": "https://aimk.ai",
+      "description": "",
+      "source": "wevity",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-18T20:09:56.830713+09:00",
+      "last_alert_at": "2026-11-18T20:10:19.976144",
+      "alert_history": [
+        "NEW"
+      ]
+    },
+    {
+      "id": "e78e9d879f45cccd",
+      "title": "2026 서울관광 프롬프톤",
+      "organizer": "서울관광재단",
+      "category": "웹/모바일/IT",
+      "target": "일반인, 대학생",
+      "apply_start": "2026-11-10",
+      "apply_end": "2026-11-29",
+      "event_date": null,
+      "url": "https://sto.or.kr/unitrcrit/AI%ED%98%81%EC%8B%A0%ED%8C%80-2026-%EC%84%9C%EC%9A%B8%EA%B4%80%EA%B4%91-%ED%94%84%EB%A1%AC%ED%94%84%ED%86%A4-%EC%B0%B8%EA%B0%80%EC%9E%90-%EB%AA%A8%EC%A7%91-%EA%B3%B5%EA%B3%A0-119~1129_/16809",
+      "description": "",
+      "source": "wevity",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-18T20:09:56.830713+09:00",
+      "last_alert_at": "2026-11-18T20:10:20.707708",
+      "alert_history": [
+        "NEW"
+      ]
+    },
+    {
+      "id": "38f65599a6d5d709",
+      "title": "세종사이버대학교 전국민 AI 공모전 (AI 불씨)",
+      "organizer": "세종사이버대학교",
+      "category": "웹/모바일/IT",
+      "target": "제한없음",
+      "apply_start": "2026-11-23",
+      "apply_end": "2026-12-20",
+      "event_date": null,
+      "url": "https://www.sjcu.ac.kr/aispark/main/index.asp",
+      "description": "",
+      "source": "wevity",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-18T20:09:56.830713+09:00",
+      "last_alert_at": "2026-11-18T20:10:21.467727",
+      "alert_history": [
+        "NEW"
+      ]
+    },
+    {
+      "id": "15857f6b7407f304",
+      "title": "2026 대구 로컬AI그라운드 - 지역문제 해결형 AI활용 경진대회",
+      "organizer": "대구광역시,대구창조경제혁신센터 / 대구정책연구원,대구광역시 창의도시재생지원센터",
+      "category": "웹/모바일/IT",
+      "target": "제한없음",
+      "apply_start": "2026-11-06",
+      "apply_end": "2026-11-30",
+      "event_date": null,
+      "url": "https://www.dgucenter.or.kr/bbs/board.php?bo_table=notice&wr_id=744",
+      "description": "",
+      "source": "wevity",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-18T20:09:56.830713+09:00",
+      "last_alert_at": "2026-11-18T20:10:22.261368",
+      "alert_history": [
+        "NEW"
+      ]
+    },
+    {
+      "id": "b307a6a7dcccb31a",
+      "title": "[한국체육산업개발(주)] 공공데이터 활용 경진대회",
+      "organizer": "한국체육산업개발(주)",
+      "category": "웹/모바일/IT",
+      "target": "제한없음",
+      "apply_start": "2026-11-02",
+      "apply_end": "2026-12-01",
+      "event_date": null,
+      "url": "https://www.wevity.com?c=find&s=1&gub=1&cidx=20&gbn=view&gp=1&ix=112160",
+      "description": "",
+      "source": "wevity",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-18T20:09:56.830713+09:00",
+      "last_alert_at": "2026-11-18T20:10:23.058512",
+      "alert_history": [
+        "NEW"
+      ]
+    },
+    {
+      "id": "e3803d46674d3c55",
+      "title": "AI 달인의 꿀팁 챌린지 시즌4",
+      "organizer": "과학기술정보통신부",
+      "category": "웹/모바일/IT",
+      "target": "제한없음",
+      "apply_start": "2026-11-02",
+      "apply_end": "2026-11-20",
+      "event_date": null,
+      "url": "https://aichallenge4all.or.kr/competitions/master100_s4",
+      "description": "",
+      "source": "wevity",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-18T20:09:56.830713+09:00",
+      "last_alert_at": "2026-11-18T20:10:23.766831",
+      "alert_history": [
+        "NEW"
+      ]
+    },
+    {
+      "id": "75719dcaa7cc352e",
+      "title": "2026 성평등 AI 벤치마크 챌린지 참가팀 모집",
+      "organizer": "성평등가족부",
+      "category": "웹/모바일/IT",
+      "target": "제한없음",
+      "apply_start": "2026-11-02",
+      "apply_end": "2026-11-20",
+      "event_date": null,
+      "url": "https://www.mogefdatacontest.co.kr/index.jsp",
+      "description": "",
+      "source": "wevity",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-18T20:09:56.830713+09:00",
+      "last_alert_at": "2026-11-18T20:10:24.510933",
+      "alert_history": [
+        "NEW"
+      ]
+    },
+    {
+      "id": "a9daf3683e8bc613",
+      "title": "제2회 2026 대한민국 AI 창조공모대전",
+      "organizer": "한국창조미술협회",
+      "category": "웹/모바일/IT",
+      "target": "제한없음",
+      "apply_start": "2026-11-23",
+      "apply_end": "2026-11-27",
+      "event_date": null,
+      "url": "https://koreaaiart.com",
+      "description": "",
+      "source": "wevity",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-18T20:09:56.830713+09:00",
+      "last_alert_at": "2026-11-18T20:10:25.213593",
+      "alert_history": [
+        "NEW"
+      ]
+    }
+  ]
 }
