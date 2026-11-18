@@ -1,0 +1,63 @@
+name: Daily ICT Contest Alert Bot
+
+on:
+  schedule:
+    # Asia/Seoul 09:17 AM = 00:17 UTC (every day)
+    - cron: '17 0 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+permissions:
+  contents: write
+
+concurrency:
+  group: contest-alert-workflow
+  cancel-in-progress: false
+
+jobs:
+  alert:
+    name: Collect Contests & Dispatch Discord Alerts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Contest Alert Bot
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          TZ: "Asia/Seoul"
+        run: |
+          python main.py
+
+      - name: Commit & Push Updated Contest State
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Add only the data storage file
+          git add data/contests.json
+
+          # Check if there are staged changes
+          if git diff --staged --quiet; then
+            echo "No changes in data/contests.json. Skipping commit."
+          else
+            echo "Changes detected in data/contests.json. Committing and pushing..."
+            git commit -m "chore(data): update contests.json [skip ci]"
+            git pull --rebase origin ${{ github.ref_name }} || true
+            git push origin ${{ github.ref_name }}
+          fi
