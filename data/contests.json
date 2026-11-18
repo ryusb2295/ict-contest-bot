@@ -1,5 +1,6 @@
 {
-  "updated_at": "2026-11-18T20:10:25.213985",
+  "updated_at": "2026-11-19T01:26:22.590616",
+  "last_digest_date": "2026-11-19",
   "contests": [
     {
       "id": "4d175f9b22e699a6",
@@ -34,9 +35,10 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-18T20:09:56.830713+09:00",
-      "last_alert_at": "2026-11-18T20:10:17.051542",
+      "last_alert_at": "2026-11-19T01:26:22.590512",
       "alert_history": [
-        "NEW"
+        "NEW",
+        "D-3"
       ]
     },
     {
@@ -72,9 +74,10 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-18T20:09:56.830713+09:00",
-      "last_alert_at": "2026-11-18T20:10:18.508782",
+      "last_alert_at": "2026-11-19T01:26:22.590507",
       "alert_history": [
-        "NEW"
+        "NEW",
+        "D-3"
       ]
     },
     {
@@ -205,9 +208,10 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-18T20:09:56.830713+09:00",
-      "last_alert_at": "2026-11-18T20:10:23.766831",
+      "last_alert_at": "2026-11-19T01:26:22.590500",
       "alert_history": [
-        "NEW"
+        "NEW",
+        "D-1"
       ]
     },
     {
@@ -224,9 +228,10 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-18T20:09:56.830713+09:00",
-      "last_alert_at": "2026-11-18T20:10:24.510933",
+      "last_alert_at": "2026-11-19T01:26:22.590447",
       "alert_history": [
-        "NEW"
+        "NEW",
+        "D-1"
       ]
     },
     {
@@ -244,6 +249,25 @@
       "status": "ACTIVE",
       "discovered_at": "2026-11-18T20:09:56.830713+09:00",
       "last_alert_at": "2026-11-18T20:10:25.213593",
+      "alert_history": [
+        "NEW"
+      ]
+    },
+    {
+      "id": "16c5637d1053a8bf",
+      "title": "공모전 준비 중이라면? AI 교정 서비스 [교정의 신]과 함께!SPECIAL",
+      "organizer": "교정의 신",
+      "category": "기획/아이디어, 광고/마케팅, 논문/리포트, 문학/글/시나리오, 예체능/미술/음악, 기타",
+      "target": "일반인, 대학생",
+      "apply_start": "2026-10-20",
+      "apply_end": "2026-12-31",
+      "event_date": null,
+      "url": "https://edit.modupub.com",
+      "description": "",
+      "source": "wevity",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-19T01:26:07.207003+09:00",
+      "last_alert_at": "2026-11-19T01:26:22.590528",
       "alert_history": [
         "NEW"
       ]
