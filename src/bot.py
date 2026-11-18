@@ -27,7 +27,7 @@ class ContestBot:
             request_timeout=self.config.request_timeout,
         )
 
-    def run(self, dry_run: bool = False) -> Dict[str, Any]:
+    def run(self, dry_run: bool = False, send_test_digest: bool = False) -> Dict[str, Any]:
         """
         Execute full contest alert pipeline:
         1. Collect candidates via Gemini / Wevity fallback
@@ -135,13 +135,19 @@ class ContestBot:
 
         new_alerts_sent = 0
         deadline_alerts_sent = 0
-        if announcements and (dry_run or self.storage.last_digest_date != today.isoformat()):
+        already_sent_today = self.storage.last_digest_date == today.isoformat()
+        test_sent_today = self.storage.last_test_digest_date == today.isoformat()
+        should_send = dry_run or not already_sent_today or (send_test_digest and not test_sent_today)
+        if announcements and should_send:
             success, msg, included = self.discord.send_digest(
                 list(announcements.values()), dry_run=dry_run
             )
             if success:
                 if not dry_run:
-                    self.storage.last_digest_date = today.isoformat()
+                    if already_sent_today and send_test_digest:
+                        self.storage.last_test_digest_date = today.isoformat()
+                    else:
+                        self.storage.last_digest_date = today.isoformat()
                 for contest, stage in included:
                     if not contest.has_alert_sent("NEW"):
                         new_alerts_sent += 1

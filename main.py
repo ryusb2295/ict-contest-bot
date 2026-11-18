@@ -70,6 +70,11 @@ def main() -> int:
         help="실제 Discord 전송 및 contests.json 저장을 하지 않고 수집/필터링/알림 시뮬레이션을 수행합니다.",
     )
     parser.add_argument(
+        "--send-test-digest",
+        action="store_true",
+        help="오늘 요약을 이미 보냈어도 수정된 공모전 요약을 하루 한 번 추가로 테스트 발송합니다.",
+    )
+    parser.add_argument(
         "--verbose",
         "-v",
         action="store_true",
@@ -90,7 +95,7 @@ def main() -> int:
 
     try:
         bot = ContestBot()
-        results = bot.run(dry_run=args.dry_run)
+        results = bot.run(dry_run=args.dry_run, send_test_digest=args.send_test_digest)
 
         print("\n" + "=" * 60)
         print(" [실행 결과 요약]")

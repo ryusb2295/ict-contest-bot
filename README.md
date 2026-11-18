@@ -51,6 +51,7 @@ python main.py
 ```
 
 GitHub에서 실제 알림을 시험할 때는 **Actions → Daily ICT Contest Alert Bot → Run workflow**에서 `master`를 선택한다. 이전 실행 화면의 **Re-run**은 당시 커밋의 예전 코드를 다시 실행하므로 사용하지 않는다.
+오늘 요약이 이미 발송됐다면 `send_test_digest`를 선택해 수정된 요약을 한 번 더 확인할 수 있다. 같은 날 이 옵션을 다시 실행해도 추가 발송하지 않는다.
 
 ## 환경변수
 

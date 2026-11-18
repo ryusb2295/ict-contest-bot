@@ -12,6 +12,26 @@ from src.models import Contest
 
 
 class TestBotIntegration(unittest.TestCase):
+    def test_manual_digest_can_send_once_after_daily_digest(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            bot = ContestBot()
+            bot.storage = bot.storage.__class__(Path(tmp_dir) / "contests.json")
+            contest = Contest.create(
+                title="AI Agent 개발 경진대회",
+                url="https://example.com/agent",
+                target="대학생",
+                apply_end="2026-11-30",
+            )
+            bot.storage.add_or_update([contest])
+            bot.storage.last_digest_date = "2026-11-19"
+            with patch("src.bot.get_current_kst_date", return_value=date(2026, 11, 19)):
+                with patch.object(bot.collector, "collect", return_value=[]):
+                    with patch.object(bot.discord, "_post_payload", return_value=(True, "SUCCESS")) as post:
+                        bot.run(send_test_digest=True)
+                        bot.run(send_test_digest=True)
+            self.assertEqual(post.call_count, 1)
+            self.assertEqual(bot.storage.last_test_digest_date, "2026-11-19")
+
     def test_new_and_deadline_alerts_share_one_message(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
             bot = ContestBot()

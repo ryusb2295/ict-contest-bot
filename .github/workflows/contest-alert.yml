@@ -4,7 +4,13 @@ on:
   schedule:
     # Asia/Seoul 09:17 AM = 00:17 UTC (every day)
     - cron: '17 0 * * *'
-  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+  workflow_dispatch:
+    inputs:
+      send_test_digest:
+        description: '오늘 이미 보냈어도 요약 메시지 한 번 더 테스트 발송'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: write
@@ -51,7 +57,11 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           TZ: "Asia/Seoul"
         run: |
-          python main.py
+          if [ "${{ inputs.send_test_digest }}" = "true" ]; then
+            python main.py --send-test-digest
+          else
+            python main.py
+          fi
 
       - name: Commit & Push Updated Contest State
         run: |

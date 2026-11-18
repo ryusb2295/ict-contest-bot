@@ -79,6 +79,7 @@ class TestStorage(unittest.TestCase):
             storage.add_or_update([c])
             storage.mark_alert_sent(c.id, "NEW")
             storage.last_digest_date = "2026-11-19"
+            storage.last_test_digest_date = "2026-11-19"
             storage.save()
 
             # Verify JSON content on disk
@@ -89,11 +90,13 @@ class TestStorage(unittest.TestCase):
                 self.assertEqual(data["contests"][0]["title"], "한글 공모전 테스트 (로봇/AI)")
                 self.assertIn("NEW", data["contests"][0]["alert_history"])
                 self.assertEqual(data["last_digest_date"], "2026-11-19")
+                self.assertEqual(data["last_test_digest_date"], "2026-11-19")
 
             # Reload into new storage instance
             storage_reloaded = ContestStorage(db_file)
             self.assertEqual(len(storage_reloaded.contests), 1)
             self.assertEqual(storage_reloaded.last_digest_date, "2026-11-19")
+            self.assertEqual(storage_reloaded.last_test_digest_date, "2026-11-19")
             reloaded_item = storage_reloaded.get_contest(c.id)
             self.assertIsNotNone(reloaded_item)
             self.assertEqual(reloaded_item.title, "한글 공모전 테스트 (로봇/AI)")
