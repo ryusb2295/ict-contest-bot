@@ -25,6 +25,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Refuse stale workflow re-runs
+        run: |
+          current_head="$(git rev-parse HEAD)"
+          latest_head="$(git ls-remote --exit-code origin "refs/heads/${GITHUB_REF_NAME}" | cut -f1)"
+          if [ "$current_head" != "$latest_head" ]; then
+            echo "::error::This run uses an old commit. Start a new run from Actions > Run workflow on the latest branch; do not use Re-run."
+            exit 1
+          fi
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -58,6 +67,6 @@ jobs:
           else
             echo "Changes detected in data/contests.json. Committing and pushing..."
             git commit -m "chore(data): update contests.json [skip ci]"
-            git pull --rebase origin ${{ github.ref_name }} || true
+          git pull --rebase origin ${{ github.ref_name }}
             git push origin ${{ github.ref_name }}
           fi

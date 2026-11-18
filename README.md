@@ -48,6 +48,8 @@ python main.py --dry-run
 python main.py
 ```
 
+GitHub에서 실제 알림을 시험할 때는 **Actions → Daily ICT Contest Alert Bot → Run workflow**에서 `master`를 선택한다. 이전 실행 화면의 **Re-run**은 당시 커밋의 예전 코드를 다시 실행하므로 사용하지 않는다.
+
 ## 환경변수
 
 | 변수명 | 필수 | 설명 |
