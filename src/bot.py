@@ -33,8 +33,8 @@ class ContestBot:
         1. Collect candidates via Gemini / Wevity fallback
         2. Filter domestic university student eligibility & ICT/CS relevance
         3. Deduplicate against existing data/contests.json
-        4. Collect new and due deadline alerts into one deadline-ordered Discord message
-        5. Record alert history for items in the sent message
+        4. Summarize all open contests in one deadline-ordered Discord message per day
+        5. Record the digest date and included alert stages
         6. Persist state to data/contests.json (skipped in dry-run)
         """
         logger.info("Starting ICT Contest Bot run (dry_run=%s)...", dry_run)
@@ -89,7 +89,7 @@ class ContestBot:
             len(updated_contests),
         )
 
-        # Step 4: Prepare one digest, including unsent new announcements from prior runs.
+        # Step 4: Prepare the full daily digest, including previously announced contests.
         announcements = {}
         for contest in self.storage.contests:
             # Skip if already closed
@@ -104,8 +104,9 @@ class ContestBot:
                     self.storage.mark_closed(contest.id)
                 continue
 
-            if not contest.has_alert_sent("NEW"):
-                announcements[contest.id] = (contest, "NEW")
+            announcements[contest.id] = (
+                contest, "NEW" if not contest.has_alert_sent("NEW") else "ONGOING"
+            )
 
             # Check if an alert stage is due today
             stage = get_due_alert_stage(
@@ -121,17 +122,19 @@ class ContestBot:
 
         new_alerts_sent = 0
         deadline_alerts_sent = 0
-        if announcements:
+        if announcements and (dry_run or self.storage.last_digest_date != today.isoformat()):
             success, msg, included = self.discord.send_digest(
                 list(announcements.values()), dry_run=dry_run
             )
             if success:
+                if not dry_run:
+                    self.storage.last_digest_date = today.isoformat()
                 for contest, stage in included:
                     if not contest.has_alert_sent("NEW"):
                         new_alerts_sent += 1
                         if not dry_run:
                             self.storage.mark_alert_sent(contest.id, "NEW")
-                    if stage != "NEW":
+                    if stage not in ("NEW", "ONGOING"):
                         deadline_alerts_sent += 1
                         if not dry_run:
                             self.storage.mark_alert_sent(contest.id, stage)
@@ -139,6 +142,8 @@ class ContestBot:
                     logger.warning("Discord digest omitted %d contests due to length limits.", len(announcements) - len(included))
             else:
                 logger.warning("Failed to send Discord digest: %s", msg)
+        elif announcements:
+            logger.info("Today's Discord digest was already sent; skipping duplicate notification.")
 
         results["deadline_alerts"] = deadline_alerts_sent
 

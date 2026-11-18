@@ -21,6 +21,7 @@ class ContestStorage:
     def __init__(self, file_path: Path):
         self.file_path = file_path
         self._contests: Dict[str, Contest] = {}
+        self.last_digest_date: Optional[str] = None
         self.load()
 
     @property
@@ -34,9 +35,11 @@ class ContestStorage:
 
     def load(self) -> None:
         """Load contests from JSON file."""
+        self.last_digest_date = None
         if not self.file_path.exists():
             logger.info("Storage file %s does not exist. Initializing empty storage.", self.file_path)
             self._contests = {}
+            self.last_digest_date = None
             return
 
         try:
@@ -44,6 +47,7 @@ class ContestStorage:
                 content = f.read().strip()
                 if not content:
                     self._contests = {}
+                    self.last_digest_date = None
                     return
                 data = json.loads(content)
 
@@ -52,6 +56,7 @@ class ContestStorage:
                 items = data
             elif isinstance(data, dict):
                 items = data.get("contests", [])
+                self.last_digest_date = data.get("last_digest_date")
 
             self._contests = {}
             for item in items:
@@ -65,6 +70,7 @@ class ContestStorage:
         except Exception as e:
             logger.error("Error reading storage file %s: %s", self.file_path, e)
             self._contests = {}
+            self.last_digest_date = None
 
     def find_duplicate(self, candidate: Contest) -> Optional[Contest]:
         """
@@ -147,6 +153,7 @@ class ContestStorage:
 
         payload = {
             "updated_at": datetime.now().isoformat(),
+            "last_digest_date": self.last_digest_date,
             "contests": [c.model_dump() for c in self._contests.values()],
         }
 

@@ -187,7 +187,7 @@ class DiscordWebhookClient:
             deadline = contest.apply_end or "마감일 미확인"
             d_day = (f"D-{days_left}" if days_left is not None and days_left > 0
                      else "오늘 마감" if days_left == 0 else "")
-            label = "🆕" if stage == "NEW" else "⏰"
+            label = "🆕" if stage == "NEW" else "⏰" if stage != "ONGOING" else "•"
             name = contest.title.replace("\n", " ").replace("\r", " ")[:140]
             if contest.url:
                 name = f"[{name}]({contest.url})"
@@ -208,7 +208,7 @@ class DiscordWebhookClient:
         if omitted:
             description += f"\n… 외 {omitted}건 (메시지 길이 제한)"
         embed = {
-            "title": f"📋 ICT 공모전 알림 · {len(included)}건",
+            "title": f"📋 진행 중인 ICT 공모전 · {len(included)}건",
             "description": description,
             "color": COLOR_D1 if any(stage == "D-1" for _, stage in included) else COLOR_NEW,
             "footer": {"text": f"마감일순 · {get_current_kst_datetime().strftime('%Y-%m-%d %H:%M KST')}"},

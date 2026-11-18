@@ -28,19 +28,29 @@ class TestBotIntegration(unittest.TestCase):
                 target="대학생",
                 apply_end="2026-11-30",
             )
-            bot.storage.add_or_update([existing])
+            ongoing = Contest.create(
+                title="대학생 데이터 진행 중 공모전",
+                url="https://example.com/ongoing",
+                target="대학생",
+                apply_end="2026-12-15",
+            )
+            bot.storage.add_or_update([existing, ongoing])
             bot.storage.mark_alert_sent(existing.id, "NEW")
+            bot.storage.mark_alert_sent(ongoing.id, "NEW")
 
             with patch("src.bot.get_current_kst_date", return_value=date(2026, 11, 19)):
                 with patch("src.discord.get_current_kst_date", return_value=date(2026, 11, 19)):
                     with patch.object(bot.collector, "collect", return_value=[new]):
                         with patch.object(bot.discord, "_post_payload", return_value=(True, "SUCCESS")) as post:
                             result = bot.run()
+                            bot.run()
 
             self.assertEqual(post.call_count, 1)
             description = post.call_args.args[0]["embeds"][0]["description"]
             self.assertLess(description.index(existing.title), description.index(new.title))
+            self.assertIn(ongoing.title, description)
             self.assertEqual(result["deadline_alerts"], 1)
+            self.assertEqual(bot.storage.last_digest_date, "2026-11-19")
             self.assertIn("D-1", bot.storage.get_contest(existing.id).alert_history)
             self.assertIn("NEW", bot.storage.get_contest(new.id).alert_history)
 
