@@ -1,4 +1,4 @@
-"""Discord Webhook integration for rich contest alerts."""
+"""Discord Webhook 발송 모듈 — 신규/마감 공고를 메시지 하나로 묶어서 전송."""
 from __future__ import annotations
 
 import json
@@ -19,185 +19,225 @@ from src.models import Contest
 
 logger = logging.getLogger(__name__)
 
-# Discord Embed Colors (Decimal RGB)
-COLOR_NEW = 0x3498DB       # Bright Blue
-COLOR_D7 = 0xF1C40F        # Sunflower Yellow
-COLOR_D3 = 0xE67E22        # Warning Orange
-COLOR_D1 = 0xED4245        # Urgent Red
-COLOR_TEST = 0x9B59B6      # Purple
-COLOR_CLOSED = 0x95A5A6    # Gray
+COLOR_NEW      = 0x5865F2   # Discord 보라
+COLOR_DEADLINE = 0xED4245   # 마감 빨강
+COLOR_D7       = 0xF1C40F   # D-7 노랑
+COLOR_D3       = 0xE67E22   # D-3 주황
+COLOR_D1       = 0xED4245   # D-1 빨강
+COLOR_TEST     = 0x57F287   # 테스트 초록
 
 
 class DiscordWebhookClient:
-    """Client for dispatching rich embeds to a Discord Webhook channel."""
-
     def __init__(self, webhook_url: str, request_timeout: int = 15):
-        self.webhook_url = webhook_url.strip()
+        self.webhook_url = webhook_url.strip() if webhook_url else ""
         self.request_timeout = request_timeout
 
+    # ------------------------------------------------------------------ #
+    # 내부 HTTP 전송
+    # ------------------------------------------------------------------ #
     def _post_payload(self, payload: Dict[str, Any], dry_run: bool = False) -> Tuple[bool, str]:
-        """Send payload to Discord Webhook."""
         if dry_run:
-            logger.info("[DRY-RUN] Discord payload generated: %s", payload.get("embeds", [{}])[0].get("title"))
+            title = payload.get("embeds", [{}])[0].get("title", "")
+            logger.info("[DRY-RUN] 발송 생략: %s", title)
             return True, "DRY_RUN_OK"
 
         if not self.webhook_url:
-            return False, "DISCORD_WEBHOOK_URL is not configured."
+            return False, "DISCORD_WEBHOOK_URL 미설정"
 
         try:
             if requests:
-                headers = {"Content-Type": "application/json"}
                 resp = requests.post(
                     self.webhook_url,
                     json=payload,
-                    headers=headers,
+                    headers={"Content-Type": "application/json"},
                     timeout=self.request_timeout,
                 )
-
-                if resp.status_code in (200, 204):
-                    return True, "SUCCESS"
-                elif resp.status_code == 429:
-                    retry_after = resp.json().get("retry_after", 2.0)
-                    logger.warning("Discord rate limited. Waiting %s seconds.", retry_after)
-                    time.sleep(float(retry_after))
-                    retry_resp = requests.post(
+                if resp.status_code == 429:
+                    wait = float(resp.json().get("retry_after", 2.0))
+                    logger.warning("Discord rate limit — %s초 대기", wait)
+                    time.sleep(wait)
+                    resp = requests.post(
                         self.webhook_url,
                         json=payload,
-                        headers=headers,
+                        headers={"Content-Type": "application/json"},
                         timeout=self.request_timeout,
                     )
-                    if retry_resp.status_code in (200, 204):
-                        return True, "SUCCESS_AFTER_RETRY"
-                    return False, f"HTTP {retry_resp.status_code}: {retry_resp.text}"
-                else:
-                    return False, f"HTTP {resp.status_code}: {resp.text}"
+                return (resp.status_code in (200, 204)), f"HTTP {resp.status_code}"
             else:
-                # Standard library urllib fallback
-                data_bytes = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+                data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
                 req = urllib.request.Request(
-                    self.webhook_url,
-                    data=data_bytes,
+                    self.webhook_url, data=data,
                     headers={"Content-Type": "application/json", "User-Agent": "ICTContestBot/1.0"},
                     method="POST",
                 )
-                try:
-                    with urllib.request.urlopen(req, timeout=self.request_timeout) as resp:
-                        if resp.status in (200, 204):
-                            return True, "SUCCESS"
-                        return True, f"HTTP {resp.status}"
-                except urllib.error.HTTPError as he:
-                    return False, f"HTTP {he.code}: {he.reason}"
+                with urllib.request.urlopen(req, timeout=self.request_timeout) as r:
+                    return r.status in (200, 204), f"HTTP {r.status}"
+        except urllib.error.HTTPError as e:
+            return False, f"HTTP {e.code}: {e.reason}"
         except Exception as e:
-            logger.error("Exception sending Discord webhook: %s", e)
+            logger.error("Discord 전송 오류: %s", e)
             return False, str(e)
 
-    def build_contest_embed(
-        self,
-        contest: Contest,
-        alert_type: str = "NEW",
-        stage: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        """Construct Discord Embed dictionary for a contest."""
+    # ------------------------------------------------------------------ #
+    # 신규 공고 — 한 메시지로 묶기
+    # ------------------------------------------------------------------ #
+    def send_new_contests_batch(self, contests: List[Contest], dry_run: bool = False) -> Tuple[bool, str]:
+        """신규 공고 여러 개를 임베드 하나에 묶어서 발송."""
+        if not contests:
+            return True, "NO_NEW"
+
         today = get_current_kst_date()
-        d_day_str = contest.get_d_day_label(today)
+        lines = []
+        for c in contests:
+            if c.apply_end:
+                deadline = f"~{c.apply_end[5:7]}/{c.apply_end[8:10]}"
+            else:
+                deadline = "마감일 미확인"
+            name = f"[{c.title}]({c.url})" if c.url else c.title
+            org  = c.organizer or "주최 미확인"
+            lines.append(f"• {name}\n  {org} | {deadline}")
 
-        # Title and color according to alert stage
-        if alert_type == "NEW":
-            title = f"📢 [신규 공고] {contest.title}"
-            color = COLOR_NEW
-        elif stage == "D-7":
-            title = f"⏰ [마감 D-7] {contest.title}"
-            color = COLOR_D7
-        elif stage == "D-3":
-            title = f"🔥 [마감 D-3] {contest.title}"
-            color = COLOR_D3
-        elif stage == "D-1":
-            title = f"🚨 [마감 D-1 (내일 마감!)] {contest.title}"
-            color = COLOR_D1
-        else:
-            title = f"📋 [공모전 알림] {contest.title}"
-            color = COLOR_NEW
-
-        period_display = (
-            f"{contest.apply_start or '미확인'} ~ {contest.apply_end or '미확인 (상세 공고 참조)'}"
-        )
-
-        fields = [
-            {"name": "🏢 주최/주관", "value": contest.organizer or "미확인", "inline": True},
-            {"name": "🎯 참가자격", "value": contest.target or "국내 대학생", "inline": True},
-            {"name": "🏷️ 공모분야", "value": contest.category or "ICT / SW / AI", "inline": True},
-            {"name": "📅 접수기간", "value": period_display, "inline": False},
-            {"name": "⏳ 마감 현황", "value": d_day_str, "inline": True},
-            {"name": "🚩 행사/대회일", "value": contest.event_date or "상세 공고 참조", "inline": True},
-            {"name": "🔗 공식 공고 링크", "value": f"[공식 공고 확인 및 접수 바로가기]({contest.url})", "inline": False},
-        ]
+        desc = "\n\n".join(lines)
+        # Discord embed description 최대 4096자
+        if len(desc) > 3800:
+            desc = desc[:3800] + "\n\n… (더 보기: Wevity/씽굿/공모전코리아)"
 
         embed = {
-            "title": title[:256],
-            "url": contest.url,
-            "description": (contest.description or "공식 링크에서 상세 요강을 확인하세요.")[:1000],
-            "color": color,
-            "fields": fields,
+            "title": f"📢 신규 공모전 {len(contests)}개",
+            "description": desc,
+            "color": COLOR_NEW,
             "footer": {
-                "text": f"ICT Contest Bot • 정보통신/컴퓨터공학 • 출처: {contest.source}",
+                "text": f"ICT Contest Bot  |  {get_current_kst_datetime().strftime('%Y-%m-%d %H:%M KST')}"
             },
-            "timestamp": get_current_kst_datetime().isoformat(),
         }
-        return embed
+        payload = {"username": "ICT 공모전 봇", "embeds": [embed]}
+        return self._post_payload(payload, dry_run=dry_run)
 
-    def send_new_contest(self, contest: Contest, dry_run: bool = False) -> Tuple[bool, str]:
-        """Dispatch a new contest announcement embed."""
-        embed = self.build_contest_embed(contest, alert_type="NEW")
-        payload = {
-            "username": "ICT 공모전 알리미",
-            "embeds": [embed],
-        }
-        success, msg = self._post_payload(payload, dry_run=dry_run)
-        if not dry_run and success:
-            time.sleep(0.5)  # safe interval to prevent rate limit
-        return success, msg
-
-    def send_deadline_alert(
-        self, contest: Contest, stage: str, dry_run: bool = False
+    # ------------------------------------------------------------------ #
+    # 마감 임박 — 한 메시지로 묶기
+    # ------------------------------------------------------------------ #
+    def send_deadline_alerts_batch(
+        self,
+        alerts: List[Tuple[Contest, str]],   # [(contest, stage), ...]
+        dry_run: bool = False,
     ) -> Tuple[bool, str]:
-        """Dispatch a deadline alert (D-7, D-3, D-1) embed."""
-        embed = self.build_contest_embed(contest, alert_type="DEADLINE", stage=stage)
-        payload = {
-            "username": "ICT 마감 임박 알리미",
-            "embeds": [embed],
-        }
-        success, msg = self._post_payload(payload, dry_run=dry_run)
-        if not dry_run and success:
-            time.sleep(0.5)
-        return success, msg
+        """D-7/D-3/D-1 마감 임박 공고 여러 개를 임베드 하나에 묶어서 발송."""
+        if not alerts:
+            return True, "NO_ALERTS"
 
+        ICON = {"D-7": "🟡", "D-3": "🟠", "D-1": "🔴"}
+        lines = []
+        for contest, stage in alerts:
+            icon = ICON.get(stage, "⚠️")
+            deadline = f"{contest.apply_end[5:7]}/{contest.apply_end[8:10]}" if contest.apply_end else "?"
+            name = f"[{contest.title}]({contest.url})" if contest.url else contest.title
+            org  = contest.organizer or "주최 미확인"
+            lines.append(f"{icon} **{stage}** | {name}\n  {org} | ~{deadline}")
+
+        desc = "\n\n".join(lines)
+        if len(desc) > 3800:
+            desc = desc[:3800] + "\n…"
+
+        # 가장 급한 단계로 색상 결정
+        stages = [s for _, s in alerts]
+        if "D-1" in stages:
+            color = COLOR_D1
+        elif "D-3" in stages:
+            color = COLOR_D3
+        else:
+            color = COLOR_D7
+
+        embed = {
+            "title": f"⏰ 마감 임박 {len(alerts)}개",
+            "description": desc,
+            "color": color,
+            "footer": {
+                "text": f"ICT Contest Bot  |  {get_current_kst_datetime().strftime('%Y-%m-%d %H:%M KST')}"
+            },
+        }
+        payload = {"username": "ICT 공모전 봇", "embeds": [embed]}
+        return self._post_payload(payload, dry_run=dry_run)
+
+    def send_digest(
+        self,
+        announcements: List[Tuple[Contest, str]],
+        dry_run: bool = False,
+    ) -> Tuple[bool, str, List[Tuple[Contest, str]]]:
+        """Send one deadline-ordered message and return only the alerts it contains."""
+        if not announcements:
+            return True, "NO_ALERTS", []
+
+        today = get_current_kst_date()
+
+        def sort_key(item: Tuple[Contest, str]) -> Tuple[str, str]:
+            contest, _ = item
+            try:
+                deadline = datetime.strptime(contest.apply_end or "", "%Y-%m-%d").date()
+                return deadline.isoformat(), contest.title
+            except ValueError:
+                return "9999-12-31", contest.title
+
+        ordered = sorted(announcements, key=sort_key)
+        lines: List[str] = []
+        included: List[Tuple[Contest, str]] = []
+        # Discord limits one embed description to 4096 characters.
+        limit = 3900
+        for contest, stage in ordered:
+            days_left = contest.days_until_deadline(today)
+            deadline = contest.apply_end or "마감일 미확인"
+            d_day = (f"D-{days_left}" if days_left is not None and days_left > 0
+                     else "오늘 마감" if days_left == 0 else "")
+            label = "🆕" if stage == "NEW" else "⏰"
+            name = contest.title.replace("\n", " ").replace("\r", " ")[:140]
+            if contest.url:
+                name = f"[{name}]({contest.url})"
+            line = f"{label} **{deadline}**"
+            if d_day:
+                line += f" ({d_day})"
+            line += f" · {name}"
+            if len("\n".join(lines + [line])) + 60 > limit:
+                break
+            lines.append(line)
+            included.append((contest, stage))
+
+        if not included:
+            return False, "첫 공고가 Discord 메시지 길이 제한을 초과했습니다.", []
+
+        omitted = len(ordered) - len(included)
+        description = "\n".join(lines)
+        if omitted:
+            description += f"\n… 외 {omitted}건 (메시지 길이 제한)"
+        embed = {
+            "title": f"📋 ICT 공모전 알림 · {len(included)}건",
+            "description": description,
+            "color": COLOR_D1 if any(stage == "D-1" for _, stage in included) else COLOR_NEW,
+            "footer": {"text": f"마감일순 · {get_current_kst_datetime().strftime('%Y-%m-%d %H:%M KST')}"},
+        }
+        payload = {"username": "ICT 공모전 봇", "embeds": [embed], "allowed_mentions": {"parse": []}}
+        success, message = self._post_payload(payload, dry_run=dry_run)
+        return success, message, included if success else []
+
+    # ------------------------------------------------------------------ #
+    # 테스트 메시지
+    # ------------------------------------------------------------------ #
     def send_test_message(self) -> Tuple[bool, str]:
-        """Dispatch a test message to verify Discord Webhook configuration."""
         if not self.webhook_url:
             return False, "DISCORD_WEBHOOK_URL 환경변수가 설정되지 않았습니다."
 
-        now_kst = get_current_kst_datetime().strftime("%Y-%m-%d %H:%M:%S KST")
+        now = get_current_kst_datetime().strftime("%Y-%m-%d %H:%M:%S KST")
         embed = {
-            "title": "✅ [테스트] ICT Contest Bot 웹후크 연결 성공!",
+            "title": "✅ ICT Contest Bot — 연결 테스트 성공",
             "description": (
-                "정보통신공학과 / 컴퓨터공학과 공모전 알리미 봇이 Discord 채널과 정상적으로 연결되었습니다.\n"
-                "매일 오전 9시 17분에 신규 공고 및 D-7, D-3, D-1 마감 임박 공고가 자동 발송됩니다."
+                "Discord Webhook 연결이 정상적으로 확인됐음.\n"
+                "매일 오전 9:17 KST에 신규 공고와 마감 임박 알림을 자동으로 발송함."
             ),
             "color": COLOR_TEST,
             "fields": [
-                {"name": "⏰ 발송 테스트 시각", "value": now_kst, "inline": True},
-                {"name": "🎯 수집 대상", "value": "해커톤 / AI / SW / 데이터 / IoT / 로봇", "inline": True},
-                {"name": "📌 상태", "value": "정상 가동 준비 완료", "inline": True},
+                {"name": "⏱ 테스트 시각", "value": now, "inline": True},
+                {"name": "🎯 대상 공모전", "value": "해커톤 / AI / SW / 데이터 / IoT / 로봇", "inline": True},
+                {"name": "📡 수집 경로", "value": "Wevity · DAKER · Gemini 검색(API 키 설정 시)", "inline": False},
             ],
-            "footer": {
-                "text": "ICT Contest Bot • Connection Test",
-            },
-            "timestamp": get_current_kst_datetime().isoformat(),
+            "footer": {"text": "ICT Contest Bot — Connection Test"},
         }
-
-        payload = {
-            "username": "ICT 공모전 알리미 [TEST]",
-            "embeds": [embed],
-        }
-
+        payload = {"username": "ICT 공모전 봇 [TEST]", "embeds": [embed]}
         return self._post_payload(payload, dry_run=False)

@@ -33,8 +33,8 @@ class ContestBot:
         1. Collect candidates via Gemini / Wevity fallback
         2. Filter domestic university student eligibility & ICT/CS relevance
         3. Deduplicate against existing data/contests.json
-        4. Send Discord Embeds for new contests
-        5. Check and send D-7, D-3, D-1 deadline alerts
+        4. Collect new and due deadline alerts into one deadline-ordered Discord message
+        5. Record alert history for items in the sent message
         6. Persist state to data/contests.json (skipped in dry-run)
         """
         logger.info("Starting ICT Contest Bot run (dry_run=%s)...", dry_run)
@@ -89,20 +89,8 @@ class ContestBot:
             len(updated_contests),
         )
 
-        # Step 4: Dispatch New Contest Announcements
-        new_alerts_sent = 0
-        for contest in new_contests:
-            logger.info("Announcing new contest: %s", contest.title)
-            success, msg = self.discord.send_new_contest(contest, dry_run=dry_run)
-            if success:
-                new_alerts_sent += 1
-                if not dry_run:
-                    self.storage.mark_alert_sent(contest.id, "NEW")
-            else:
-                logger.warning("Failed to send new contest alert for '%s': %s", contest.title, msg)
-
-        # Step 5: Check and Dispatch Deadline Alerts (D-7, D-3, D-1)
-        deadline_alerts_sent = 0
+        # Step 4: Prepare one digest, including unsent new announcements from prior runs.
+        announcements = {}
         for contest in self.storage.contests:
             # Skip if already closed
             if contest.status == "CLOSED":
@@ -116,6 +104,9 @@ class ContestBot:
                     self.storage.mark_closed(contest.id)
                 continue
 
+            if not contest.has_alert_sent("NEW"):
+                announcements[contest.id] = (contest, "NEW")
+
             # Check if an alert stage is due today
             stage = get_due_alert_stage(
                 apply_end_str=contest.apply_end,
@@ -126,13 +117,28 @@ class ContestBot:
 
             if stage:
                 logger.info("Contest '%s' reached alert stage %s (D-%d)", contest.title, stage, days_left)
-                success, msg = self.discord.send_deadline_alert(contest, stage=stage, dry_run=dry_run)
-                if success:
-                    deadline_alerts_sent += 1
-                    if not dry_run:
-                        self.storage.mark_alert_sent(contest.id, stage)
-                else:
-                    logger.warning("Failed to send deadline alert (%s) for '%s': %s", stage, contest.title, msg)
+                announcements[contest.id] = (contest, stage)
+
+        new_alerts_sent = 0
+        deadline_alerts_sent = 0
+        if announcements:
+            success, msg, included = self.discord.send_digest(
+                list(announcements.values()), dry_run=dry_run
+            )
+            if success:
+                for contest, stage in included:
+                    if not contest.has_alert_sent("NEW"):
+                        new_alerts_sent += 1
+                        if not dry_run:
+                            self.storage.mark_alert_sent(contest.id, "NEW")
+                    if stage != "NEW":
+                        deadline_alerts_sent += 1
+                        if not dry_run:
+                            self.storage.mark_alert_sent(contest.id, stage)
+                if len(included) < len(announcements):
+                    logger.warning("Discord digest omitted %d contests due to length limits.", len(announcements) - len(included))
+            else:
+                logger.warning("Failed to send Discord digest: %s", msg)
 
         results["deadline_alerts"] = deadline_alerts_sent
 

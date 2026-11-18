@@ -10,16 +10,17 @@ Gemini API 무료 티어 + GitHub Actions로 운영하며 별도 서버 없이 �
 2. 공고명, 주최기관, 접수 기간, 행사일, 참가자격, 공식 URL 추출
 3. 원문에서 확인된 날짜만 사용 (추측 없음)
 4. 중복 공고 자동 제거 (URL·제목 유사도 기준)
-5. 신규 공고 Discord Embed 발송
-6. 마감 D-7, D-3, D-1 알림 (같은 단계 중복 발송 없음)
+5. 신규 공고와 마감 D-7, D-3, D-1 알림을 실행당 Discord 메시지 하나로 발송
+6. 마감일이 빠른 순서로 정렬하고 공고명, 마감일, D-day, 공식 링크를 간결하게 표시 (같은 단계 중복 발송 없음)
 7. 매일 오전 9:17(KST) GitHub Actions 자동 실행
 
 ## 수집 경로
 
-- **1순위** Gemini API Google Search Grounding — 무료 티어 한도 내에서 실시간 검색
-- **2순위** [Wevity](https://www.wevity.com) IT·SW 공모전 목록 스크래핑 (Gemini 실패 시 자동 전환)
+- **Google 검색** Gemini API 키가 설정된 경우 여러 웹사이트의 공모전을 검색
+- **Wevity** [Wevity](https://www.wevity.com) 기획/아이디어·과학/기술·IT 분야의 접수 중 목록 여러 페이지를 매번 직접 수집
+- **DAKER** [DAKER](https://daker.ai/public/hackathons) AI·데이터 해커톤을 매번 직접 수집
 
-> Gemini 무료 티어는 Google Search Grounding 사용에 제한이 있을 수 있음. 실패해도 Wevity 폴백으로 정상 작동함.
+> Gemini 무료 티어는 Google Search Grounding 사용에 제한이 있을 수 있음. API 키가 없거나 검색에 실패해도 Wevity와 DAKER 수집은 실행함.
 
 ## 로컬 실행
 
@@ -96,6 +97,7 @@ ict-contest-bot/
 │   └── collectors/
 │       ├── gemini_search.py # Gemini Google Search Grounding
 │       ├── wevity_collector.py # Wevity 스크래핑
+│       ├── daker_collector.py # DAKER 해커톤 수집
 │       └── fallback.py      # 수집기 조율
 └── .github/workflows/
     └── contest-alert.yml    # GitHub Actions 워크플로

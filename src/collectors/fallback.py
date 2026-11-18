@@ -1,10 +1,11 @@
-"""Fallback coordinator managing primary Gemini Search Grounding and public portal scrapers."""
+"""Merge results from Gemini search, Wevity, and DAKER."""
 from __future__ import annotations
 
 import logging
 from typing import List
 
 from src.collectors.base import BaseCollector
+from src.collectors.daker_collector import DakerCollector
 from src.collectors.gemini_search import GeminiSearchCollector
 from src.collectors.wevity_collector import WevityCollector
 from src.config import config
@@ -15,19 +16,17 @@ logger = logging.getLogger(__name__)
 
 class FallbackCollectorManager(BaseCollector):
     """
-    Coordinates multi-tier contest collection:
-    1. Primary: Gemini API with Google Search Grounding (if API key available).
-    2. Fallback: Wevity IT/SW public portal scraper (zero-cost, always accessible).
+    Run optional Gemini search and both public site collectors on every run.
     """
 
     def __init__(self):
         self.gemini_collector = GeminiSearchCollector()
         self.wevity_collector = WevityCollector()
+        self.daker_collector = DakerCollector()
 
     def collect(self) -> List[Contest]:
-        """Collect contests with automatic graceful fallback."""
+        """Collect from available sources while isolating individual failures."""
         candidates: List[Contest] = []
-        gemini_success = False
 
         # Attempt 1: Gemini with Google Search Grounding
         if config.has_gemini:
@@ -37,16 +36,14 @@ class FallbackCollectorManager(BaseCollector):
                 if gemini_items:
                     logger.info("Gemini Search Grounding returned %d contests.", len(gemini_items))
                     candidates.extend(gemini_items)
-                    gemini_success = True
                 else:
-                    logger.info("Gemini Search Grounding returned 0 items. Triggering Wevity fallback.")
+                    logger.info("Gemini Search Grounding returned 0 items.")
             except Exception as e:
-                logger.warning("Gemini collection encountered error: %s. Triggering fallback.", e)
+                logger.warning("Gemini collection encountered error: %s", e)
         else:
-            logger.info("No GEMINI_API_KEY detected. Using Wevity public collector directly.")
+            logger.info("No GEMINI_API_KEY detected. Collecting from public sites only.")
 
-        # Attempt 2: Fallback / Secondary Web Scraper
-        # Always run or fallback if Gemini didn't find enough items
+        # Wevity runs even when Gemini succeeds.
         try:
             wevity_items = self.wevity_collector.collect()
             if wevity_items:
@@ -59,6 +56,17 @@ class FallbackCollectorManager(BaseCollector):
                         existing_urls.add(item.url)
         except Exception as e:
             logger.error("WevityCollector encountered error: %s", e)
+
+        # DAKER is an independent source for AI and data hackathons.
+        try:
+            daker_items = self.daker_collector.collect()
+            existing_urls = {c.url for c in candidates}
+            for item in daker_items:
+                if item.url not in existing_urls:
+                    candidates.append(item)
+                    existing_urls.add(item.url)
+        except Exception as e:
+            logger.error("DakerCollector encountered error: %s", e)
 
         logger.info("Total raw candidates gathered across collectors: %d", len(candidates))
         return candidates

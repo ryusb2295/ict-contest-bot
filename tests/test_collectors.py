@@ -1,5 +1,6 @@
 """Unit tests for collector JSON extraction and Wevity HTML parsing."""
 import unittest
+from datetime import date
 from unittest.mock import patch
 
 try:
@@ -8,10 +9,63 @@ except ImportError:
     BeautifulSoup = None
 
 from src.collectors.gemini_search import extract_json_array
+from src.collectors.daker_collector import DakerCollector
+from src.collectors.fallback import FallbackCollectorManager
 from src.collectors.wevity_collector import WevityCollector
+from src.models import Contest
 
 
 class TestCollectors(unittest.TestCase):
+    def test_manager_merges_independent_sites(self):
+        manager = FallbackCollectorManager()
+        wevity = Contest.create(title="사회보장 데이터 AI 경진대회", url="https://example.com/social")
+        daker = Contest.create(title="제주 AI Agent 챌린지", url="https://example.com/jeju")
+        with patch.object(manager.gemini_collector, "collect", return_value=[]):
+            with patch.object(manager.wevity_collector, "collect", return_value=[wevity]):
+                with patch.object(manager.daker_collector, "collect", return_value=[daker]):
+                    contests = manager.collect()
+        self.assertEqual({item.title for item in contests}, {wevity.title, daker.title})
+
+    def test_daker_collects_jeju_from_listing(self):
+        listing = BeautifulSoup(
+            '<a href="/hackathons/jeju-ai-agent">제주 AI·빅데이터 활용 AI Agent 개발 챌린지</a>',
+            "html.parser",
+        )
+        detail = BeautifulSoup(
+            '<h1>제주 AI·빅데이터 활용 AI Agent 개발 챌린지</h1>'
+            '<p>일반인, 학생 등 누구나 참가 가능</p>'
+            '<p>기획안 및 최종 산출물 제출: 2026년 10월 26일 10:00 ~ 11월 20일 10:00</p>',
+            "html.parser",
+        )
+        collector = DakerCollector()
+        with patch("src.collectors.daker_collector.get_current_kst_date", return_value=date(2026, 11, 19)):
+            with patch.object(collector, "_fetch", side_effect=[listing, detail]):
+                contests = collector.collect()
+        self.assertEqual(len(contests), 1)
+        self.assertEqual(contests[0].apply_end, "2026-11-20")
+        self.assertEqual(contests[0].source, "daker")
+
+    def test_wevity_scans_idea_and_later_pages(self):
+        def listing(title, ix):
+            return BeautifulSoup(
+                f'<ul class="list"><li><div class="tit"><a href="/?c=find&ix={ix}">{title}</a></div>'
+                '<div class="day">D-1</div></li></ul>', "html.parser"
+            )
+
+        detail = BeautifulSoup(
+            '<ul class="cd-info-list"><li>대상 : 누구나</li>'
+            '<li>접수기간 : 2026-10-21 ~ 2026-11-20</li></ul>', "html.parser"
+        )
+        urls = ["https://www.wevity.com/?c=find&cidx=1&gp=1", "https://www.wevity.com/?c=find&cidx=1&gp=2"]
+        responses = [listing("대구 기후 공공데이터 AI 활용대회", 1), detail,
+                     listing("사회보장 데이터 AI 혁신 아이디어 경진대회", 2), detail]
+        collector = WevityCollector()
+        with patch("src.collectors.wevity_collector.WEVITY_URLS", urls):
+            with patch.object(collector, "_fetch_html_or_soup", side_effect=responses):
+                contests = collector.collect()
+        self.assertEqual(len(contests), 2)
+        self.assertTrue(all(c.apply_end == "2026-11-20" for c in contests))
+
     def test_extract_json_array_plain(self):
         text = '[{"title": "2026 AI 해커톤", "url": "https://example.com"}]'
         items = extract_json_array(text)

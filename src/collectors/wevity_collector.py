@@ -22,15 +22,18 @@ except ImportError:
 from src.collectors.base import BaseCollector
 from src.config import config
 from src.deadline import get_current_kst_date, get_current_kst_datetime, parse_date, parse_date_range
+from src.filter import is_relevant_major
 from src.models import Contest
 
 logger = logging.getLogger(__name__)
 
 WEVITY_BASE_URL = "https://www.wevity.com/"
-# Category 21: Web/Mobile/IT, Category 20: Science/Engineering/Tech
+# 1: ideas, 20: science/engineering, 21: web/mobile/IT.
+# Read several pages because older announcements may still be open.
 WEVITY_URLS = [
-    "https://www.wevity.com/?c=find&s=1&gub=1&cidx=21",
-    "https://www.wevity.com/?c=find&s=1&gub=1&cidx=20",
+    f"https://www.wevity.com/?c=find&s=1&gub=1&mode=ing&cidx={category}&gp={page}"
+    for category in (1, 20, 21)
+    for page in range(1, 5)
 ]
 
 
@@ -40,7 +43,7 @@ class WevityCollector(BaseCollector):
     Serves as an automatic zero-cost fallback when Gemini Search Grounding is restricted.
     """
 
-    def __init__(self, max_items_per_category: int = 10):
+    def __init__(self, max_items_per_category: int = 15):
         self.max_items_per_category = max_items_per_category
         self.headers = {
             "User-Agent": config.user_agent,
@@ -212,6 +215,9 @@ class WevityCollector(BaseCollector):
             collected_in_category = 0
             for raw_title, href, day_text in entries:
                 if not raw_title or not href or "ix=" not in href:
+                    continue
+
+                if not is_relevant_major(raw_title):
                     continue
 
                 detail_url = urljoin(WEVITY_BASE_URL, href)
