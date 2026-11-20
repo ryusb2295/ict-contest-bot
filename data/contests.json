@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-11-19T16:25:05.410043",
-  "last_digest_date": "2026-11-19",
+  "updated_at": "2026-11-20T16:15:19.984923",
+  "last_digest_date": "2026-11-20",
   "last_test_digest_date": "2026-11-19",
   "contests": [
     {
@@ -269,6 +269,25 @@
       "status": "ACTIVE",
       "discovered_at": "2026-11-19T01:26:07.207003+09:00",
       "last_alert_at": "2026-11-19T01:26:22.590528",
+      "alert_history": [
+        "NEW"
+      ]
+    },
+    {
+      "id": "281fcb0d790c0fa5",
+      "title": "일상 속 아이디어를 AI로 웹·앱 서비스로! INNO-CODER AI HACKATHON 참가팀 모집신규",
+      "organizer": "(재)운당나눔재단, (재)울산창조경제혁신센터",
+      "category": "게임/소프트웨어",
+      "target": "대학생, 기타",
+      "apply_start": "2026-11-19",
+      "apply_end": "2026-11-29",
+      "event_date": null,
+      "url": "https://ccei.creativekorea.or.kr/ulsan/service/program_view.do?no=10647&rnum=2&sMenuType=00040002&mainGo=Y",
+      "description": "",
+      "source": "wevity",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-20T16:15:01.032049+09:00",
+      "last_alert_at": "2026-11-20T16:15:19.984832",
       "alert_history": [
         "NEW"
       ]
