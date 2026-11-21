@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-11-20T16:15:19.984923",
-  "last_digest_date": "2026-11-20",
+  "updated_at": "2026-11-21T16:07:12.621839",
+  "last_digest_date": "2026-11-21",
   "last_test_digest_date": "2026-11-19",
   "contests": [
     {
@@ -207,7 +207,7 @@
       "url": "https://aichallenge4all.or.kr/competitions/master100_s4",
       "description": "",
       "source": "wevity",
-      "status": "ACTIVE",
+      "status": "CLOSED",
       "discovered_at": "2026-11-18T20:09:56.830713+09:00",
       "last_alert_at": "2026-11-19T01:26:22.590500",
       "alert_history": [
@@ -227,7 +227,7 @@
       "url": "https://www.mogefdatacontest.co.kr/index.jsp",
       "description": "",
       "source": "wevity",
-      "status": "ACTIVE",
+      "status": "CLOSED",
       "discovered_at": "2026-11-18T20:09:56.830713+09:00",
       "last_alert_at": "2026-11-19T01:26:22.590447",
       "alert_history": [
@@ -288,6 +288,25 @@
       "status": "ACTIVE",
       "discovered_at": "2026-11-20T16:15:01.032049+09:00",
       "last_alert_at": "2026-11-20T16:15:19.984832",
+      "alert_history": [
+        "NEW"
+      ]
+    },
+    {
+      "id": "73de1806d6f142a0",
+      "title": "제1회 통합데이터플랫폼(원-윈도우) 활용 아이디어 공모전",
+      "organizer": "과학기술정보통신부",
+      "category": "기획/아이디어",
+      "target": "제한없음",
+      "apply_start": "2026-11-12",
+      "apply_end": "2026-11-30",
+      "event_date": null,
+      "url": "https://www.data1window.kr/ntcMttr/detail?pstTypeCd=001&pstSn=353",
+      "description": "",
+      "source": "wevity",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-21T16:06:47.270424+09:00",
+      "last_alert_at": "2026-11-21T16:07:12.621744",
       "alert_history": [
         "NEW"
       ]
