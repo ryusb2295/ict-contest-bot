@@ -88,7 +88,9 @@ class DakerCollector(BaseCollector):
             title = detail.h1.get_text(" ", strip=True) if detail.h1 else list_title
             title = title.split(" | DAKER")[0].strip()
             text = detail.get_text("\n", strip=True)
-            if not title or not any(word in text for word in ("누구나", "대학생", "학생", "일반인")):
+            eligible_terms = ("대학생", "대학원생", "대학(원)생", "학부생", "누구나", "제한없음", "제한 없음", "전국민", "전 국민", "대한민국 국민", "청년", "일반인")
+            eligibility = next((word for word in eligible_terms if word in text), None)
+            if not title or not eligibility:
                 continue
             deadline = _submission_deadline(text)
             if not deadline:
@@ -100,7 +102,7 @@ class DakerCollector(BaseCollector):
                 title=title,
                 url=url,
                 category="AI / 데이터 / 해커톤",
-                target="학생 및 일반인",
+                target=eligibility,
                 apply_end=deadline,
                 source="daker",
                 discovered_at=get_current_kst_datetime().isoformat(),

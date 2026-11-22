@@ -178,7 +178,12 @@ class DiscordWebhookClient:
                 return "9999-12-31", contest.title
 
         ordered = sorted(announcements, key=sort_key)
-        chunks: List[str] = [""]
+        urgent_count = sum(stage not in ("NEW", "ONGOING") for _, stage in ordered)
+        header = f"**오늘의 공모전**  ·  접수 중 {len(ordered)}건"
+        if urgent_count:
+            header += f"  ·  마감 알림 {urgent_count}건"
+        header += "\n제목을 누르면 공고 페이지로 이동합니다.\n\n"
+        chunks: List[str] = [header]
         included: List[Tuple[Contest, str]] = []
         # Discord permits up to 4096 characters per embed and 6000 total.
         max_chunk = 3400
@@ -188,20 +193,20 @@ class DiscordWebhookClient:
             deadline = contest.apply_end.replace("-", ".") if contest.apply_end else "마감일 미확인"
             d_day = (f"D-{days_left}" if days_left is not None and days_left > 0
                      else "오늘 마감" if days_left == 0 else "")
-            label = "🆕" if stage == "NEW" else "⏰" if stage != "ONGOING" else "•"
+            label = "🆕 신규" if stage == "NEW" else "⏰ 마감 임박" if stage != "ONGOING" else "📌 접수 중"
             name = contest.title.replace("\n", " ").replace("\r", " ")[:120]
             if contest.url:
                 name = f"[{name}]({contest.url})"
-            line = f"{label} **{len(included) + 1}. {name}**\n마감 **{deadline}"
+            line = f"{label}  **{len(included) + 1}. {name}**\n🗓️ 마감 **{deadline}"
             if d_day:
                 line += f" · {d_day}"
             line += "**"
             organizer = (contest.organizer or "주최 미확인").replace("\n", " ")[:65]
             target = (contest.target or "대상 미확인").replace("\n", " ")[:55]
-            line += f" · 주최 {organizer}\n대상 {target}"
+            line += f"  ·  🏢 주최 {organizer}\n👥 대상 {target}"
             category = (contest.category or "").replace("\n", " ")[:65]
             if category and category not in ("웹/모바일/IT", "ICT / SW / AI"):
-                line += f" · 분야 {category}"
+                line += f"  ·  분야 {category}"
             entry = line + "\n\n"
             if sum(map(len, chunks)) + len(entry) + 80 > max_total:
                 break
@@ -221,7 +226,7 @@ class DiscordWebhookClient:
         embeds = []
         for index, description in enumerate(chunks):
             embeds.append({
-                "title": (f"📋 진행 중인 ICT 공모전 · {len(included)}건" if index == 0 else "📋 계속"),
+                "title": (f"🎯 ICT 공모전 알림 · {today.strftime('%m/%d')}" if index == 0 else "🎯 ICT 공모전 알림 · 계속"),
                 "description": description.rstrip(),
                 "color": COLOR_D1 if any(stage == "D-1" for _, stage in included) else COLOR_NEW,
                 "footer": {"text": f"마감일순 · {get_current_kst_datetime().strftime('%Y-%m-%d %H:%M KST')}"},

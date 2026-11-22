@@ -36,9 +36,14 @@ class TestFilter(unittest.TestCase):
     def test_is_eligible_student_positive(self):
         self.assertTrue(is_eligible_student("전국 대학생 및 대학원생"))
         self.assertTrue(is_eligible_student("누구나 참여 가능 (제한 없음)"))
+        self.assertTrue(is_eligible_student("대한민국 국민 누구나(거주지 제한없음)"))
+        self.assertTrue(is_eligible_student("제한없음"))
+        self.assertTrue(is_eligible_student("전 국민 참여 가능"))
         self.assertTrue(is_eligible_student("국내 거주 대학생(학부생)"))
         self.assertTrue(is_eligible_student("일반인, 청년, 학생"))
-        self.assertTrue(is_eligible_student("미확인 / 상세 공고 참조"))
+        self.assertTrue(is_eligible_student("청년 대상"))
+        self.assertTrue(is_eligible_student("일반인 참가 가능"))
+        self.assertFalse(is_eligible_student("미확인 / 상세 공고 참조"))
 
     def test_is_eligible_student_negative(self):
         self.assertFalse(is_eligible_student("초등학생 전용"))
@@ -63,6 +68,14 @@ class TestFilter(unittest.TestCase):
             today=today,
         )
         self.assertTrue(valid)
+
+        open_to_all, _ = filter_contest(
+            title="2026 대구 로컬AI그라운드 - 지역문제 해결형 AI활용 경진대회",
+            target="대한민국 국민 누구나(거주지 제한없음)",
+            apply_end="2026-11-30",
+            today=today,
+        )
+        self.assertTrue(open_to_all)
 
         # 2. Expired contest
         expired, reason = filter_contest(

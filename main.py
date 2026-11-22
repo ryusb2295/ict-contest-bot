@@ -34,7 +34,7 @@ def handle_test_webhook() -> int:
         print("[오류] DISCORD_WEBHOOK_URL 환경변수가 설정되지 않았습니다.")
         print("설정 방법:")
         print(" 1. Discord 채널 설정 > 연동 > 웹후크 생성 > 웹후크 URL 복사")
-        print(" 2. .env 파일에 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/... 추가")
+        print(" 2. 프로젝트 폴더의 .env 파일에 실제 DISCORD_WEBHOOK_URL 추가 (.env.example은 예시용)")
         print(" 3. GitHub Actions의 경우 Repository Secrets에 DISCORD_WEBHOOK_URL 등록")
         return 0
 

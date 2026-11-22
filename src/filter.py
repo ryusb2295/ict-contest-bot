@@ -36,8 +36,10 @@ TECHNICAL_OVERRIDE = re.compile(
 
 # Positive eligibility keywords for domestic university students
 ELIGIBLE_TARGET_KEYWORDS = [
-    "대학생", "대학(원)생", "학부생", "청년", "일반인", "누구나", "제한없음",
-    "전국민", "국내 거주", "예비창업자", "스타트업", "학생",
+    "대학생", "대학원생", "대학(원)생", "학부생", "대학교 재학생", "대학 재학생",
+    "대학교 휴학생", "대학 휴학생", "대학교 재·휴학생", "대학 재·휴학생",
+    "누구나", "제한없음", "제한 없음", "전국민", "전 국민", "대한민국 국민",
+    "청년", "일반인",
 ]
 
 # Ineligible keywords (strictly restricted away from university students)
@@ -64,10 +66,9 @@ def is_relevant_major(title: str, category: str = "", description: str = "") -> 
 
 
 def is_eligible_student(target: str) -> bool:
-    """Check if domestic university students are eligible to participate."""
-    if not target or target.strip() in ("", "미확인 / 상세 공고 참조"):
-        # If unspecified in summary, allow passage so official URL can be checked
-        return True
+    """Require explicit student, youth, general public, or open-to-all eligibility."""
+    if not target:
+        return False
 
     target_lower = target.lower()
 
@@ -77,10 +78,6 @@ def is_eligible_student(target: str) -> bool:
 
     # Check for positive eligibility words
     if any(eligible in target_lower for eligible in ELIGIBLE_TARGET_KEYWORDS):
-        return True
-
-    # If target mentions '학생' but not '초등/중등/고등 전용', default to True
-    if "학생" in target_lower:
         return True
 
     return False

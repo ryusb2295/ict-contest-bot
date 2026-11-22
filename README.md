@@ -6,7 +6,7 @@ Gemini API 무료 티어 + GitHub Actions로 운영하며 별도 서버 없이 �
 
 ## 주요 기능
 
-1. 국내 대학생 참가 가능한 공고만 수집 (전공 무관 공고 필터링)
+1. 참가 대상에 대학생·학부생·청년·일반인 또는 대한민국 국민 누구나·제한없음 등이 명시된 공고만 수집 (전공 무관 공고 필터링)
 2. 공고명, 주최기관, 접수 기간, 행사일, 참가자격, 공식 URL 추출
 3. 원문에서 확인된 날짜만 사용 (추측 없음)
 4. 중복 공고 자동 제거 (URL·제목 유사도 기준)
@@ -21,6 +21,7 @@ AI 도구로 광고·영상·포스터를 제작하는 공모전과 e스포츠 �
 - **Google 검색** Gemini API 키가 설정된 경우 여러 웹사이트의 공모전을 검색
 - **Wevity** [Wevity](https://www.wevity.com) 기획/아이디어·과학/기술·IT 분야의 접수 중 목록 여러 페이지를 매번 직접 수집
 - **DAKER** [DAKER](https://daker.ai/public/hackathons) AI·데이터 해커톤을 매번 직접 수집
+- **씽유** [접수 중 IT·SW 공모전](https://thinkyou.co.kr/contest/sector.asp?serfield=5&serstatus=1) 목록과 상세 페이지를 확인
 
 > Gemini 무료 티어는 Google Search Grounding 사용에 제한이 있을 수 있음. API 키가 없거나 검색에 실패해도 Wevity와 DAKER 수집은 실행함.
 

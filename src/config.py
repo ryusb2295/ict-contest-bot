@@ -37,10 +37,9 @@ try:
 except ImportError:
     pass
 
-# Resiliently parse .env, .env.local, or .env.example
+# Read local configuration only; .env.example contains placeholder values.
 _load_env_file(Path(".env").resolve())
 _load_env_file(Path(".env.local").resolve())
-_load_env_file(Path(".env.example").resolve())
 
 
 @dataclass
@@ -80,7 +79,7 @@ class Config:
 
     @property
     def has_webhook(self) -> bool:
-        return bool(self.discord_webhook_url)
+        return bool(self.discord_webhook_url and "YOUR_WEBHOOK" not in self.discord_webhook_url.upper())
 
     @property
     def has_gemini(self) -> bool:

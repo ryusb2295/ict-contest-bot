@@ -23,7 +23,8 @@ class TestCollectors(unittest.TestCase):
         with patch.object(manager.gemini_collector, "collect", return_value=[]):
             with patch.object(manager.wevity_collector, "collect", return_value=[wevity]):
                 with patch.object(manager.daker_collector, "collect", return_value=[daker]):
-                    contests = manager.collect()
+                    with patch.object(manager.thinkyou_collector, "collect", return_value=[]):
+                        contests = manager.collect()
         self.assertEqual({item.title for item in contests}, {wevity.title, daker.title})
 
     def test_daker_collects_jeju_from_listing(self):

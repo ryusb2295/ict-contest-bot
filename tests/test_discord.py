@@ -25,7 +25,9 @@ class TestDiscord(unittest.TestCase):
         self.assertEqual([c.title for c, _ in included], ["빠른 공모전", "늦은 공모전", "날짜 미확인"])
         description = post.call_args.args[0]["embeds"][0]["description"]
         self.assertLess(description.index("빠른 공모전"), description.index("늦은 공모전"))
-        self.assertIn("마감 **2026.11.20 · D-1**", description)
+        self.assertIn("🗓️ 마감 **2026.11.20 · D-1**", description)
+        self.assertIn("오늘의 공모전", description)
+        self.assertIn("⏰ 마감 임박", description)
         self.assertIn("[빠른 공모전](https://example.com/sooner)", description)
         self.assertIn("주최", description)
         self.assertIn("대상", description)

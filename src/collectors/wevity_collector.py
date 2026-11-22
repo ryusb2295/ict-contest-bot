@@ -82,7 +82,7 @@ class WevityCollector(BaseCollector):
         """Parse contest detail page on Wevity to extract accurate fields."""
         data = {
             "category": "웹/모바일/IT",
-            "target": "대학생",
+            "target": "미확인 / 상세 공고 참조",
             "organizer": "미확인 / 상세 공고 참조",
             "apply_start": None,
             "apply_end": None,
