@@ -12,10 +12,50 @@ from src.collectors.gemini_search import extract_json_array
 from src.collectors.daker_collector import DakerCollector
 from src.collectors.fallback import FallbackCollectorManager
 from src.collectors.wevity_collector import WevityCollector
+from src.collectors.coworker_collector import CoworkerCollector
+from src.collectors.contestkorea_collector import ContestKoreaCollector
 from src.models import Contest
 
 
 class TestCollectors(unittest.TestCase):
+    def test_coworker_parses_verified_open_contest(self):
+        page = BeautifulSoup(
+            '<p class="bigtxt">2026 AI 서비스 개발 경진대회</p>'
+            '<div><strong class="tit">주최사</strong>정보통신협회</div>'
+            '<div><strong class="tit">응모대상</strong>일반인, 대학생</div>'
+            '<div><strong class="tit">접수기간</strong>26.11.01 ~ 26.12.20</div>'
+            '<div><strong class="tit">홈페이지</strong><a href="https://official.example/contest">바로가기</a></div>',
+            "html.parser",
+        )
+        with patch("src.collectors.coworker_collector.get_current_kst_date", return_value=date(2026, 11, 22)):
+            contest = CoworkerCollector._detail(page, "https://co-worker.co.kr/contest/contest_view?idx=1")
+        self.assertEqual(contest.url, "https://official.example/contest")
+        self.assertEqual(contest.apply_end, "2026-12-20")
+
+    def test_coworker_rejects_training_and_missing_eligibility(self):
+        for title, target in (("AI SW Camp", "대학생"), ("AI 서비스 개발 경진대회", "")):
+            page = BeautifulSoup(
+                f'<p class="bigtxt">{title}</p>'
+                f'<div><strong class="tit">응모대상</strong>{target}</div>'
+                '<div><strong class="tit">접수기간</strong>26.11.01 ~ 26.12.20</div>',
+                "html.parser",
+            )
+            self.assertIsNone(CoworkerCollector._detail(page, "https://co-worker.co.kr/contest/contest_view?idx=1"))
+
+    def test_contestkorea_parses_verified_contest(self):
+        page = BeautifulSoup(
+            '<h1>2027 Vision AI 해커톤</h1><table>'
+            '<tr><th>주최 . 주관</th><td>AI 협회</td></tr>'
+            '<tr><th>참가대상</th><td>대학생, 일반인</td></tr>'
+            '<tr><th>접수기간</th><td>2026.11.16 ~ 2027.01.10</td></tr>'
+            '<tr><th>홈페이지</th><td><a href="https://official.example/ai">바로가기</a></td></tr>'
+            '</table>', "html.parser",
+        )
+        with patch("src.collectors.contestkorea_collector.get_current_kst_date", return_value=date(2026, 11, 22)):
+            contest = ContestKoreaCollector._detail(page, "https://www.contestkorea.com/sub/view.php?str_no=1")
+        self.assertEqual(contest.apply_end, "2027-01-10")
+        self.assertEqual(contest.url, "https://official.example/ai")
+
     def test_manager_merges_independent_sites(self):
         manager = FallbackCollectorManager()
         wevity = Contest.create(title="사회보장 데이터 AI 경진대회", url="https://example.com/social")
@@ -24,7 +64,9 @@ class TestCollectors(unittest.TestCase):
             with patch.object(manager.wevity_collector, "collect", return_value=[wevity]):
                 with patch.object(manager.daker_collector, "collect", return_value=[daker]):
                     with patch.object(manager.thinkyou_collector, "collect", return_value=[]):
-                        contests = manager.collect()
+                        with patch.object(manager.coworker_collector, "collect", return_value=[]):
+                            with patch.object(manager.contestkorea_collector, "collect", return_value=[]):
+                                contests = manager.collect()
         self.assertEqual({item.title for item in contests}, {wevity.title, daker.title})
 
     def test_daker_collects_jeju_from_listing(self):

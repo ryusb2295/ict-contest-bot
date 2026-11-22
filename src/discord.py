@@ -203,6 +203,8 @@ class DiscordWebhookClient:
             line += "**"
             organizer = (contest.organizer or "주최 미확인").replace("\n", " ")[:65]
             target = (contest.target or "대상 미확인").replace("\n", " ")[:55]
+            if target == "미확인 / 상세 공고 참조":
+                target = "확인 필요"
             line += f"  ·  🏢 주최 {organizer}\n👥 대상 {target}"
             category = (contest.category or "").replace("\n", " ")[:65]
             if category and category not in ("웹/모바일/IT", "ICT / SW / AI"):

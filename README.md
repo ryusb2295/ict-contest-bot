@@ -22,8 +22,10 @@ AI 도구로 광고·영상·포스터를 제작하는 공모전과 e스포츠 �
 - **Wevity** [Wevity](https://www.wevity.com) 기획/아이디어·과학/기술·IT 분야의 접수 중 목록 여러 페이지를 매번 직접 수집
 - **DAKER** [DAKER](https://daker.ai/public/hackathons) AI·데이터 해커톤을 매번 직접 수집
 - **씽유** [접수 중 IT·SW 공모전](https://thinkyou.co.kr/contest/sector.asp?serfield=5&serstatus=1) 목록과 상세 페이지를 확인
+- **코워커** [진행 중 공모전](https://co-worker.co.kr/Contest/state_contest_list?contest_state=3) 목록에서 ICT 관련 공고의 참가 자격과 마감일을 확인
+- **콘테스트코리아** [학문·과학·IT 공모전](https://www.contestkorea.com/sub/list.php?Txt_bcode=030310001&int_gbn=1) 목록에서 참가 대상과 접수 기간을 확인
 
-> Gemini 무료 티어는 Google Search Grounding 사용에 제한이 있을 수 있음. API 키가 없거나 검색에 실패해도 Wevity와 DAKER 수집은 실행함.
+> Gemini 무료 티어는 Google Search Grounding 사용에 제한이 있을 수 있음. API 키가 없거나 검색에 실패해도 Wevity·DAKER·씽유·코워커 수집은 실행함.
 
 ## 로컬 실행
 

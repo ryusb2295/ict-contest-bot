@@ -3,6 +3,7 @@ import unittest
 from datetime import date
 
 from src.filter import filter_contest, is_eligible_student, is_not_expired, is_relevant_major
+from src.models import Contest
 
 
 class TestFilter(unittest.TestCase):
@@ -46,6 +47,7 @@ class TestFilter(unittest.TestCase):
         self.assertFalse(is_eligible_student("미확인 / 상세 공고 참조"))
 
     def test_is_eligible_student_negative(self):
+        self.assertFalse(is_eligible_student(Contest.create(title="AI 개발 대회", url="https://example.com").target))
         self.assertFalse(is_eligible_student("초등학생 전용"))
         self.assertFalse(is_eligible_student("중학생만 참가 가능"))
         self.assertFalse(is_eligible_student("만 65세 시니어 전용"))

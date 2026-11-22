@@ -83,7 +83,7 @@ class Config:
 
     @property
     def has_gemini(self) -> bool:
-        return bool(self.gemini_api_key)
+        return bool(self.gemini_api_key and not self.gemini_api_key.lower().startswith("your_"))
 
 
 # Global default configuration instance

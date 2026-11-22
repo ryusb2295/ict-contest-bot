@@ -17,7 +17,7 @@ from src.models import Contest
 logger = logging.getLogger(__name__)
 LIST_URL = "https://thinkyou.co.kr/contest/sector.asp?serfield=5&serstatus=1&page={}"
 DETAIL_PATH = re.compile(r"^/contest/\d+/?$")
-NON_CONTEST = ("교육생 모집", "교육과정", "무료교육", "국비지원", "아카데미", "양성과정", "세미나")
+NON_CONTEST = ("교육생 모집", "교육과정", "무료교육", "국비지원", "아카데미", "양성과정", "세미나", "컨설팅", "취업", "강의")
 CREATIVE_TITLE = ("music video", "ai video", "ai film", "광고", "포스터", "영상", "뮤직비디오")
 
 

@@ -79,7 +79,7 @@ class Contest(BaseModel):
     title: str = Field(description="공고명")
     organizer: str = Field(default="미확인 / 상세 공고 참조", description="주최/주관 기관")
     category: str = Field(default="ICT / SW / AI", description="공모 분야")
-    target: str = Field(default="국내 대학생", description="참가 자격")
+    target: str = Field(default="미확인 / 상세 공고 참조", description="참가 자격")
     apply_start: Optional[str] = Field(default=None, description="접수 시작일 (YYYY-MM-DD) 또는 None")
     apply_end: Optional[str] = Field(default=None, description="접수 마감일 (YYYY-MM-DD) 또는 None")
     event_date: Optional[str] = Field(default=None, description="행사/대회일 또는 None")
@@ -118,7 +118,7 @@ class Contest(BaseModel):
             title=clean_title,
             organizer=(organizer or "").strip() or "미확인 / 상세 공고 참조",
             category=(category or "").strip() or "ICT / SW / AI",
-            target=(target or "").strip() or "국내 대학생",
+            target=(target or "").strip() or "미확인 / 상세 공고 참조",
             apply_start=apply_start,
             apply_end=apply_end,
             event_date=event_date,

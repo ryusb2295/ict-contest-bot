@@ -9,6 +9,8 @@ from src.collectors.daker_collector import DakerCollector
 from src.collectors.gemini_search import GeminiSearchCollector
 from src.collectors.wevity_collector import WevityCollector
 from src.collectors.thinkyou_collector import ThinkyouCollector
+from src.collectors.coworker_collector import CoworkerCollector
+from src.collectors.contestkorea_collector import ContestKoreaCollector
 from src.config import config
 from src.models import Contest
 
@@ -25,6 +27,8 @@ class FallbackCollectorManager(BaseCollector):
         self.wevity_collector = WevityCollector()
         self.daker_collector = DakerCollector()
         self.thinkyou_collector = ThinkyouCollector()
+        self.coworker_collector = CoworkerCollector()
+        self.contestkorea_collector = ContestKoreaCollector()
 
     def collect(self) -> List[Contest]:
         """Collect from available sources while isolating individual failures."""
@@ -79,6 +83,26 @@ class FallbackCollectorManager(BaseCollector):
                     existing_urls.add(item.url)
         except Exception as e:
             logger.error("ThinkyouCollector encountered error: %s", e)
+
+        try:
+            coworker_items = self.coworker_collector.collect()
+            existing_urls = {c.url for c in candidates}
+            for item in coworker_items:
+                if item.url not in existing_urls:
+                    candidates.append(item)
+                    existing_urls.add(item.url)
+        except Exception as e:
+            logger.error("CoworkerCollector encountered error: %s", e)
+
+        try:
+            contestkorea_items = self.contestkorea_collector.collect()
+            existing_urls = {c.url for c in candidates}
+            for item in contestkorea_items:
+                if item.url not in existing_urls:
+                    candidates.append(item)
+                    existing_urls.add(item.url)
+        except Exception as e:
+            logger.error("ContestKoreaCollector encountered error: %s", e)
 
         logger.info("Total raw candidates gathered across collectors: %d", len(candidates))
         return candidates
