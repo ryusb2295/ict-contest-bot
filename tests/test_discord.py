@@ -1,4 +1,4 @@
-"""Tests for the single Discord digest message."""
+"""Tests for Discord digest delivery."""
 import unittest
 from datetime import date
 from unittest.mock import patch
@@ -60,6 +60,32 @@ class TestDiscord(unittest.TestCase):
         success, _, included = client.send_digest([(contest, "NEW")])
         self.assertFalse(success)
         self.assertEqual(included, [])
+
+    def test_large_digest_sends_every_contest_across_messages(self):
+        client = DiscordWebhookClient(webhook_url="https://discord.com/api/webhooks/mock")
+        contests = [
+            Contest.create(title=f"AI 서비스 개발 경진대회 {i} " + "기술" * 60,
+                           url=f"https://example.com/{i}", apply_end="2026-12-10")
+            for i in range(80)
+        ]
+        with patch.object(client, "_post_payload", return_value=(True, "HTTP 204")) as post:
+            success, _, included = client.send_digest([(c, "NEW") for c in contests])
+        self.assertTrue(success)
+        self.assertGreater(post.call_count, 1)
+        self.assertEqual(len(included), len(contests))
+        self.assertTrue(all(len(embed["description"]) <= 3400 for call in post.call_args_list
+                            for embed in call.args[0]["embeds"]))
+
+    def test_partial_failure_reports_only_sent_contests(self):
+        client = DiscordWebhookClient(webhook_url="https://discord.com/api/webhooks/mock")
+        contests = [Contest.create(title=f"AI 개발 대회 {i} " + "기술" * 60,
+                                   url=f"https://example.com/{i}") for i in range(80)]
+        with patch.object(client, "_post_payload", side_effect=[(True, "HTTP 204"), (False, "HTTP 500")]):
+            success, message, included = client.send_digest([(c, "NEW") for c in contests])
+        self.assertFalse(success)
+        self.assertIn("HTTP 500", message)
+        self.assertGreater(len(included), 0)
+        self.assertLess(len(included), len(contests))
 
     def test_empty_webhook_send_fails_cleanly(self):
         client = DiscordWebhookClient(webhook_url="")

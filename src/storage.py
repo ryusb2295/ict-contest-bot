@@ -23,6 +23,9 @@ class ContestStorage:
         self._contests: Dict[str, Contest] = {}
         self.last_digest_date: Optional[str] = None
         self.last_test_digest_date: Optional[str] = None
+        self.source_counts: Dict[str, int] = {}
+        self.partial_digest_date: Optional[str] = None
+        self.partial_digest_ids: List[str] = []
         self.load()
 
     @property
@@ -38,6 +41,9 @@ class ContestStorage:
         """Load contests from JSON file."""
         self.last_digest_date = None
         self.last_test_digest_date = None
+        self.source_counts = {}
+        self.partial_digest_date = None
+        self.partial_digest_ids = []
         if not self.file_path.exists():
             logger.info("Storage file %s does not exist. Initializing empty storage.", self.file_path)
             self._contests = {}
@@ -60,6 +66,9 @@ class ContestStorage:
                 items = data.get("contests", [])
                 self.last_digest_date = data.get("last_digest_date")
                 self.last_test_digest_date = data.get("last_test_digest_date")
+                self.source_counts = data.get("source_counts", {})
+                self.partial_digest_date = data.get("partial_digest_date")
+                self.partial_digest_ids = data.get("partial_digest_ids", [])
 
             self._contests = {}
             for item in items:
@@ -74,6 +83,9 @@ class ContestStorage:
             logger.error("Error reading storage file %s: %s", self.file_path, e)
             self._contests = {}
             self.last_digest_date = None
+            self.source_counts = {}
+            self.partial_digest_date = None
+            self.partial_digest_ids = []
 
     def find_duplicate(self, candidate: Contest) -> Optional[Contest]:
         """
@@ -158,6 +170,9 @@ class ContestStorage:
             "updated_at": datetime.now().isoformat(),
             "last_digest_date": self.last_digest_date,
             "last_test_digest_date": self.last_test_digest_date,
+            "source_counts": self.source_counts,
+            "partial_digest_date": self.partial_digest_date,
+            "partial_digest_ids": self.partial_digest_ids,
             "contests": [c.model_dump() for c in self._contests.values()],
         }
 

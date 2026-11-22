@@ -33,6 +33,8 @@ class FallbackCollectorManager(BaseCollector):
     def collect(self) -> List[Contest]:
         """Collect from available sources while isolating individual failures."""
         candidates: List[Contest] = []
+        self.source_counts = {}
+        self.source_errors = {}
 
         # Attempt 1: Gemini with Google Search Grounding
         if config.has_gemini:
@@ -52,6 +54,7 @@ class FallbackCollectorManager(BaseCollector):
         # Wevity runs even when Gemini succeeds.
         try:
             wevity_items = self.wevity_collector.collect()
+            self.source_counts["wevity"] = len(wevity_items)
             if wevity_items:
                 logger.info("WevityCollector gathered %d contests.", len(wevity_items))
                 # Merge without URL collisions
@@ -61,47 +64,56 @@ class FallbackCollectorManager(BaseCollector):
                         candidates.append(item)
                         existing_urls.add(item.url)
         except Exception as e:
+            self.source_errors["wevity"] = str(e)
             logger.error("WevityCollector encountered error: %s", e)
 
         # DAKER is an independent source for AI and data hackathons.
         try:
             daker_items = self.daker_collector.collect()
+            self.source_counts["daker"] = len(daker_items)
             existing_urls = {c.url for c in candidates}
             for item in daker_items:
                 if item.url not in existing_urls:
                     candidates.append(item)
                     existing_urls.add(item.url)
         except Exception as e:
+            self.source_errors["daker"] = str(e)
             logger.error("DakerCollector encountered error: %s", e)
 
         try:
             thinkyou_items = self.thinkyou_collector.collect()
+            self.source_counts["thinkyou"] = len(thinkyou_items)
             existing_urls = {c.url for c in candidates}
             for item in thinkyou_items:
                 if item.url not in existing_urls:
                     candidates.append(item)
                     existing_urls.add(item.url)
         except Exception as e:
+            self.source_errors["thinkyou"] = str(e)
             logger.error("ThinkyouCollector encountered error: %s", e)
 
         try:
             coworker_items = self.coworker_collector.collect()
+            self.source_counts["coworker"] = len(coworker_items)
             existing_urls = {c.url for c in candidates}
             for item in coworker_items:
                 if item.url not in existing_urls:
                     candidates.append(item)
                     existing_urls.add(item.url)
         except Exception as e:
+            self.source_errors["coworker"] = str(e)
             logger.error("CoworkerCollector encountered error: %s", e)
 
         try:
             contestkorea_items = self.contestkorea_collector.collect()
+            self.source_counts["contestkorea"] = len(contestkorea_items)
             existing_urls = {c.url for c in candidates}
             for item in contestkorea_items:
                 if item.url not in existing_urls:
                     candidates.append(item)
                     existing_urls.add(item.url)
         except Exception as e:
+            self.source_errors["contestkorea"] = str(e)
             logger.error("ContestKoreaCollector encountered error: %s", e)
 
         logger.info("Total raw candidates gathered across collectors: %d", len(candidates))

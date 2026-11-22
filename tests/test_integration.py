@@ -12,6 +12,49 @@ from src.models import Contest
 
 
 class TestBotIntegration(unittest.TestCase):
+    def test_partial_digest_resumes_without_repeating_sent_contests(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            bot = ContestBot()
+            bot.storage = bot.storage.__class__(Path(tmp_dir) / "contests.json")
+            titles = ["AI 모델 개발 경진대회", "로봇 자율주행 해커톤", "데이터 분석 챌린지"]
+            contests = [Contest.create(title=title, url=f"https://example.com/{i}",
+                                       target="대학생", apply_end="2026-11-30") for i, title in enumerate(titles)]
+            bot.storage.add_or_update(contests)
+            sent_batches = []
+
+            def send_digest(items, dry_run=False):
+                sent_batches.append([contest.id for contest, _ in items])
+                if len(sent_batches) == 1:
+                    return False, "HTTP 500", items[:1]
+                return True, "SUCCESS", items
+
+            with patch("src.bot.get_current_kst_date", return_value=date(2026, 11, 22)):
+                with patch.object(bot.collector, "collect", return_value=[]):
+                    with patch.object(bot.discord, "send_digest", side_effect=send_digest):
+                        bot.run()
+                        self.assertIsNone(bot.storage.last_digest_date)
+                        bot.storage = bot.storage.__class__(Path(tmp_dir) / "contests.json")
+                        bot.run()
+            self.assertEqual(len(sent_batches[0]), 3)
+            self.assertEqual(len(sent_batches[1]), 2)
+            self.assertNotIn(sent_batches[0][0], sent_batches[1])
+            self.assertEqual(bot.storage.last_digest_date, "2026-11-22")
+
+    def test_source_drop_sends_warning(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            bot = ContestBot()
+            bot.storage = bot.storage.__class__(Path(tmp_dir) / "contests.json")
+            bot.storage.source_counts = {"wevity": 4, "daker": 0}
+            bot.collector.source_counts = {"wevity": 0, "daker": 0}
+            bot.collector.source_errors = {}
+            with patch("src.bot.get_current_kst_date", return_value=date(2026, 11, 22)):
+                with patch.object(bot.collector, "collect", return_value=[]):
+                    with patch.object(bot.discord, "send_source_warning", return_value=(True, "HTTP 204")) as warn:
+                        result = bot.run()
+            self.assertTrue(result["source_warnings"])
+            warn.assert_called_once()
+            self.assertEqual(bot.storage.source_counts["wevity"], 0)
+
     def test_manual_digest_can_send_once_after_daily_digest(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
             bot = ContestBot()

@@ -163,7 +163,7 @@ class DiscordWebhookClient:
         announcements: List[Tuple[Contest, str]],
         dry_run: bool = False,
     ) -> Tuple[bool, str, List[Tuple[Contest, str]]]:
-        """Send one deadline-ordered message and return only the alerts it contains."""
+        """Send every alert in deadline order, splitting across webhook messages as needed."""
         if not announcements:
             return True, "NO_ALERTS", []
 
@@ -184,7 +184,8 @@ class DiscordWebhookClient:
             header += f"  ·  마감 알림 {urgent_count}건"
         header += "\n제목을 누르면 공고 페이지로 이동합니다.\n\n"
         chunks: List[str] = [header]
-        included: List[Tuple[Contest, str]] = []
+        batch_items: List[Tuple[Contest, str]] = []
+        batches: List[Tuple[List[str], List[Tuple[Contest, str]]]] = []
         # Discord permits up to 4096 characters per embed and 6000 total.
         max_chunk = 3400
         max_total = 5400
@@ -197,7 +198,8 @@ class DiscordWebhookClient:
             name = contest.title.replace("\n", " ").replace("\r", " ")[:120]
             if contest.url:
                 name = f"[{name}]({contest.url})"
-            line = f"{label}  **{len(included) + 1}. {name}**\n🗓️ 마감 **{deadline}"
+            number = sum(len(items) for _, items in batches) + len(batch_items) + 1
+            line = f"{label}  **{number}. {name}**\n🗓️ 마감 **{deadline}"
             if d_day:
                 line += f" · {d_day}"
             line += "**"
@@ -210,32 +212,53 @@ class DiscordWebhookClient:
             if category and category not in ("웹/모바일/IT", "ICT / SW / AI"):
                 line += f"  ·  분야 {category}"
             entry = line + "\n\n"
-            if sum(map(len, chunks)) + len(entry) + 80 > max_total:
-                break
+            if sum(map(len, chunks)) + len(entry) + 80 > max_total or (
+                len(chunks) == 2 and len(chunks[-1]) + len(entry) > max_chunk
+            ):
+                batches.append((chunks, batch_items))
+                chunks, batch_items = [header], []
             if len(chunks[-1]) + len(entry) > max_chunk:
-                if len(chunks) == 2:
-                    break
                 chunks.append("")
+            if len(chunks[-1]) + len(entry) > max_chunk:
+                return False, "공고 한 건이 Discord 메시지 길이 제한을 초과했습니다.", []
             chunks[-1] += entry
-            included.append((contest, stage))
+            batch_items.append((contest, stage))
 
-        if not included:
-            return False, "첫 공고가 Discord 메시지 길이 제한을 초과했습니다.", []
+        if batch_items:
+            batches.append((chunks, batch_items))
 
-        omitted = len(ordered) - len(included)
-        if omitted:
-            chunks[-1] += f"… 외 {omitted}건 (Discord 길이 제한)"
-        embeds = []
-        for index, description in enumerate(chunks):
-            embeds.append({
-                "title": (f"🎯 ICT 공모전 알림 · {today.strftime('%m/%d')}" if index == 0 else "🎯 ICT 공모전 알림 · 계속"),
-                "description": description.rstrip(),
-                "color": COLOR_D1 if any(stage == "D-1" for _, stage in included) else COLOR_NEW,
-                "footer": {"text": f"마감일순 · {get_current_kst_datetime().strftime('%Y-%m-%d %H:%M KST')}"},
-            })
-        payload = {"username": "ICT 공모전 봇", "embeds": embeds, "allowed_mentions": {"parse": []}}
-        success, message = self._post_payload(payload, dry_run=dry_run)
-        return success, message, included if success else []
+        sent: List[Tuple[Contest, str]] = []
+        for page, (descriptions, items) in enumerate(batches, start=1):
+            embeds = []
+            for index, description in enumerate(descriptions):
+                embeds.append({
+                    "title": f"🎯 ICT 공모전 알림 · {today.strftime('%m/%d')} ({page}/{len(batches)})" if index == 0 else "🎯 ICT 공모전 알림 · 계속",
+                    "description": description.rstrip(),
+                    "color": COLOR_D1 if any(stage == "D-1" for _, stage in items) else COLOR_NEW,
+                    "footer": {"text": f"마감일순 · {get_current_kst_datetime().strftime('%Y-%m-%d %H:%M KST')}"},
+                })
+            payload = {"username": "ICT 공모전 봇", "embeds": embeds, "allowed_mentions": {"parse": []}}
+            success, message = self._post_payload(payload, dry_run=dry_run)
+            if not success:
+                return False, f"{page}/{len(batches)} 페이지 전송 실패: {message}", sent
+            sent.extend(items)
+        return True, "DRY_RUN_OK" if dry_run else "SUCCESS", sent
+
+    def send_source_warning(self, warnings: List[str], dry_run: bool = False) -> Tuple[bool, str]:
+        """Report collection problems without exposing request details or credentials."""
+        if not warnings:
+            return True, "NO_WARNINGS"
+        payload = {
+            "username": "ICT 공모전 봇",
+            "embeds": [{
+                "title": "⚠️ 공모전 수집 상태 확인 필요",
+                "description": "\n".join(f"• {warning}" for warning in warnings)[:3500],
+                "color": COLOR_D3,
+                "footer": {"text": get_current_kst_datetime().strftime("%Y-%m-%d %H:%M KST")},
+            }],
+            "allowed_mentions": {"parse": []},
+        }
+        return self._post_payload(payload, dry_run=dry_run)
 
     # ------------------------------------------------------------------ #
     # 테스트 메시지

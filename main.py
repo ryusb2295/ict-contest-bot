@@ -105,6 +105,8 @@ def main() -> int:
         print(f" - 기존 갱신 공고: {results['updated_contests']}건")
         print(f" - 마감 임박 알림(D-7/3/1): {results['deadline_alerts']}건")
         print(f" - 누적 보관 공고 수: {results['total_stored']}건")
+        if results.get("source_warnings"):
+            print(f" - 수집 상태 주의: {', '.join(results['source_warnings'])}")
         if results.get("errors"):
             print(f" - 주의 사항: {len(results['errors'])}건 발생 (상세 로그 참조)")
         print("=" * 60)

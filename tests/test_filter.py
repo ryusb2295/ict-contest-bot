@@ -21,6 +21,8 @@ class TestFilter(unittest.TestCase):
         self.assertTrue(is_relevant_major("블록체인 보안 기술 경진대회"))
 
     def test_is_relevant_major_negative(self):
+        self.assertFalse(is_relevant_major("블록체인 무료 취업컨설팅 참가자 모집"))
+        self.assertFalse(is_relevant_major("AI 클라우드 엔지니어 양성과정"))
         self.assertFalse(is_relevant_major("제3회 청소년 백일장 시 수필 공모전"))
         self.assertFalse(is_relevant_major("지역 캐릭터 로고 디자인 공모전"))
         self.assertFalse(is_relevant_major("시민 참여 숏폼 브이로그 영상 공모전"))
@@ -57,6 +59,8 @@ class TestFilter(unittest.TestCase):
         self.assertTrue(is_not_expired("2026-11-25", today=today))
         self.assertTrue(is_not_expired("2026-11-18", today=today))
         self.assertFalse(is_not_expired("2026-11-17", today=today))
+        self.assertFalse(is_not_expired(None, today=today))
+        self.assertFalse(is_not_expired("추후 공지", today=today))
 
     def test_filter_contest_full_pipeline(self):
         today = date(2026, 11, 18)
@@ -70,6 +74,12 @@ class TestFilter(unittest.TestCase):
             today=today,
         )
         self.assertTrue(valid)
+
+        unknown_deadline, reason = filter_contest(
+            title="대학생 AI 개발 경진대회", target="대학생", today=today,
+        )
+        self.assertFalse(unknown_deadline)
+        self.assertIn("마감일 미확인", reason)
 
         open_to_all, _ = filter_contest(
             title="2026 대구 로컬AI그라운드 - 지역문제 해결형 AI활용 경진대회",

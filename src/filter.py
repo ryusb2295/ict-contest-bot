@@ -29,6 +29,12 @@ CREATIVE_TERMS = (
     "시 공모전", "콘텐츠", "음악", "댄스", "e스포츠", "e-스포츠",
     "이스포츠", "꿀팁", "제작법",
 )
+NON_CONTEST_TITLE = re.compile(
+    r"교육생\s*모집|수강생\s*모집|양성과정|국비지원|취업\s*컨설팅|"
+    r"무료\s*강의|세미나\s*참가|교육과정\s*모집|아카데미\s*모집|"
+    r"(?<![a-z])(?:bootcamp|training course)(?![a-z])",
+    re.IGNORECASE,
+)
 TECHNICAL_OVERRIDE = re.compile(
     r"모델 개발|알고리즘 개발|소프트웨어 개발|서비스 개발|시스템 개발|"
     r"앱 개발|웹앱 개발|데이터 분석|데이터분석|임베디드|정보보호|보안 기술"
@@ -54,6 +60,8 @@ def is_relevant_major(title: str, category: str = "", description: str = "") -> 
     title_text = title.lower()
     detail_text = f"{title} {description}".lower()
 
+    if NON_CONTEST_TITLE.search(title):
+        return False
     if any(term in title_text for term in CREATIVE_TERMS) and not TECHNICAL_OVERRIDE.search(detail_text):
         return False
     if any(term in detail_text for term in TECHNICAL_TERMS):
@@ -84,21 +92,21 @@ def is_eligible_student(target: str) -> bool:
 
 
 def is_not_expired(apply_end_str: Optional[str], today: Optional[date] = None) -> bool:
-    """Check if the contest deadline has not passed yet."""
+    """Require a verified deadline that has not passed yet."""
     if not apply_end_str:
-        return True  # If unknown, keep for verification
+        return False
 
     today_kst = today or get_current_kst_date()
     parsed_end = parse_date(apply_end_str)
     if not parsed_end:
-        return True
+        return False
 
     from datetime import datetime
     try:
         end_date = datetime.strptime(parsed_end, "%Y-%m-%d").date()
         return end_date >= today_kst
     except ValueError:
-        return True
+        return False
 
 
 def filter_contest(
@@ -113,6 +121,9 @@ def filter_contest(
     Run full validation on a contest candidate.
     Returns (is_valid, reason).
     """
+    if not parse_date(apply_end):
+        return False, "마감일 미확인"
+
     if not is_not_expired(apply_end, today):
         return False, "마감일 경과 (이미 종료된 공고)"
 

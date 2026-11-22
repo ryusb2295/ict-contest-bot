@@ -33,7 +33,7 @@ class ContestBot:
         1. Collect candidates via Gemini / Wevity fallback
         2. Filter domestic university student eligibility & ICT/CS relevance
         3. Deduplicate against existing data/contests.json
-        4. Summarize all open contests in one deadline-ordered Discord message per day
+        4. Summarize all open contests in deadline-ordered Discord messages per day
         5. Record the digest date and included alert stages
         6. Persist state to data/contests.json (skipped in dry-run)
         """
@@ -49,6 +49,7 @@ class ContestBot:
             "deadline_alerts": 0,
             "total_stored": len(self.storage.contests),
             "errors": [],
+            "source_warnings": [],
         }
 
         # Step 1: Collection
@@ -59,6 +60,27 @@ class ContestBot:
             logger.error("Error during contest collection: %s", e)
             results["errors"].append(str(e))
             raw_candidates = []
+
+        source_counts = getattr(self.collector, "source_counts", {})
+        source_errors = getattr(self.collector, "source_errors", {})
+        previous_counts = self.storage.source_counts
+        source_warnings = [f"{name}: 수집 오류" for name in source_errors]
+        source_warnings.extend(
+            f"{name}: 이전 {previous}건 → 이번 0건"
+            for name, previous in previous_counts.items()
+            if previous > 0 and source_counts.get(name) == 0 and name not in source_errors
+        )
+        if source_counts and all(count == 0 for count in source_counts.values()):
+            source_warnings.append("모든 공모전 사이트에서 수집 결과가 0건입니다.")
+        results["source_warnings"] = source_warnings
+        if source_warnings:
+            logger.warning("Collector health: %s", "; ".join(source_warnings))
+            if not dry_run:
+                warning_sent, warning_result = self.discord.send_source_warning(source_warnings)
+                if not warning_sent:
+                    results["errors"].append(f"수집 상태 알림 실패: {warning_result}")
+        if not dry_run and source_counts:
+            self.storage.source_counts = source_counts.copy()
 
         # Step 2: Filtering
         valid_candidates: List[Contest] = []
@@ -138,29 +160,43 @@ class ContestBot:
         already_sent_today = self.storage.last_digest_date == today.isoformat()
         test_sent_today = self.storage.last_test_digest_date == today.isoformat()
         should_send = dry_run or not already_sent_today or (send_test_digest and not test_sent_today)
-        if announcements and should_send:
+        partial_ids = set(self.storage.partial_digest_ids) if self.storage.partial_digest_date == today.isoformat() else set()
+        if not dry_run and not already_sent_today and self.storage.partial_digest_date != today.isoformat():
+            self.storage.partial_digest_date = today.isoformat()
+            self.storage.partial_digest_ids = []
+        pending = list(announcements.values())
+        if not dry_run and not already_sent_today:
+            pending = [(contest, stage) for contest, stage in pending if contest.id not in partial_ids]
+        if announcements and should_send and pending:
             success, msg, included = self.discord.send_digest(
-                list(announcements.values()), dry_run=dry_run
+                pending, dry_run=dry_run
             )
+            if not dry_run and not already_sent_today:
+                self.storage.partial_digest_ids = list(partial_ids | {contest.id for contest, _ in included})
             if success:
                 if not dry_run:
                     if already_sent_today and send_test_digest:
                         self.storage.last_test_digest_date = today.isoformat()
                     else:
                         self.storage.last_digest_date = today.isoformat()
-                for contest, stage in included:
-                    if not contest.has_alert_sent("NEW"):
-                        new_alerts_sent += 1
-                        if not dry_run:
-                            self.storage.mark_alert_sent(contest.id, "NEW")
-                    if stage not in ("NEW", "ONGOING"):
-                        deadline_alerts_sent += 1
-                        if not dry_run:
-                            self.storage.mark_alert_sent(contest.id, stage)
-                if len(included) < len(announcements):
-                    logger.warning("Discord digest omitted %d contests due to length limits.", len(announcements) - len(included))
+                        self.storage.partial_digest_date = None
+                        self.storage.partial_digest_ids = []
             else:
                 logger.warning("Failed to send Discord digest: %s", msg)
+            for contest, stage in included:
+                if not contest.has_alert_sent("NEW"):
+                    new_alerts_sent += 1
+                    if not dry_run:
+                        self.storage.mark_alert_sent(contest.id, "NEW")
+                if stage not in ("NEW", "ONGOING"):
+                    deadline_alerts_sent += 1
+                    if not dry_run:
+                        self.storage.mark_alert_sent(contest.id, stage)
+        elif announcements and should_send and not pending:
+            if not dry_run:
+                self.storage.last_digest_date = today.isoformat()
+                self.storage.partial_digest_date = None
+                self.storage.partial_digest_ids = []
         elif announcements:
             logger.info("Today's Discord digest was already sent; skipping duplicate notification.")
 
