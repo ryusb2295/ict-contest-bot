@@ -90,6 +90,7 @@ def main() -> int:
     print("=" * 60)
     print(f" [ICT Contest Bot] 시작 (Dry-Run: {args.dry_run})")
     print(f" - Gemini 검색: {'사용' if config.has_gemini else '사용 안 함 (공개 사이트 수집)'}")
+    print(f" - Gemini 공고 검토: {'사용' if config.has_gemini_refiner else '사용 안 함'}")
     print(f" - Discord Webhook 설정 여부: {'등록됨' if config.has_webhook else '미등록'}")
     print("=" * 60)
 
@@ -101,6 +102,7 @@ def main() -> int:
         print(" [실행 결과 요약]")
         print(f" - 원본 수집 공고 수: {results['collected_raw']}건")
         print(f" - 전공/자격 검증 통과: {results['filtered_valid']}건")
+        print(f" - Gemini 검토 제외: {results['gemini_excluded']}건")
         print(f" - 신규 발견 공고: {results['new_contests']}건")
         print(f" - 기존 갱신 공고: {results['updated_contests']}건")
         print(f" - 마감 임박 알림(D-7/3/1): {results['deadline_alerts']}건")

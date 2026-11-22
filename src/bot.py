@@ -9,6 +9,7 @@ from src.config import config
 from src.deadline import get_current_kst_date, get_due_alert_stage
 from src.discord import DiscordWebhookClient
 from src.filter import filter_contest
+from src.gemini_refiner import GeminiRefiner
 from src.models import Contest
 from src.storage import ContestStorage
 
@@ -22,6 +23,7 @@ class ContestBot:
         self.config = config
         self.storage = ContestStorage(self.config.data_file)
         self.collector = FallbackCollectorManager()
+        self.refiner = GeminiRefiner()
         self.discord = DiscordWebhookClient(
             webhook_url=self.config.discord_webhook_url,
             request_timeout=self.config.request_timeout,
@@ -44,6 +46,7 @@ class ContestBot:
         results = {
             "collected_raw": 0,
             "filtered_valid": 0,
+            "gemini_excluded": 0,
             "new_contests": 0,
             "updated_contests": 0,
             "deadline_alerts": 0,
@@ -97,6 +100,11 @@ class ContestBot:
                 valid_candidates.append(cand)
             else:
                 logger.debug("Filtered out '%s': %s", cand.title, reason)
+
+        if self.config.has_gemini_refiner and valid_candidates:
+            before_review = len(valid_candidates)
+            valid_candidates = self.refiner.refine(valid_candidates)
+            results["gemini_excluded"] = before_review - len(valid_candidates)
 
         results["filtered_valid"] = len(valid_candidates)
         logger.info("Filtered %d valid ICT contests open to university students.", len(valid_candidates))

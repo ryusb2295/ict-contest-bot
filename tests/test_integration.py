@@ -12,6 +12,30 @@ from src.models import Contest
 
 
 class TestBotIntegration(unittest.TestCase):
+    def setUp(self):
+        self.config_patch = patch("src.bot.config", Config(gemini_refine_enabled=False, gemini_search_enabled=False))
+        self.config_patch.start()
+
+    def tearDown(self):
+        self.config_patch.stop()
+
+    def test_optional_gemini_review_runs_after_rule_filter(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            bot = ContestBot()
+            bot.storage = bot.storage.__class__(Path(tmp_dir) / "contests.json")
+            bot.config.gemini_refine_enabled = True
+            bot.config.gemini_api_key = "test-key"
+            candidate = Contest.create(title="대학생 AI 서비스 개발 경진대회",
+                                       url="https://example.com/ai", target="대학생",
+                                       apply_end="2026-12-10")
+            with patch("src.bot.get_current_kst_date", return_value=date(2026, 11, 22)):
+                with patch.object(bot.collector, "collect", return_value=[candidate]):
+                    with patch.object(bot.refiner, "refine", return_value=[]) as refine:
+                        result = bot.run(dry_run=True)
+            refine.assert_called_once()
+            self.assertEqual(result["gemini_excluded"], 1)
+            self.assertEqual(result["filtered_valid"], 0)
+
     def test_partial_digest_resumes_without_repeating_sent_contests(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
             bot = ContestBot()

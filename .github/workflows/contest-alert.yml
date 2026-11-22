@@ -55,6 +55,8 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_SEARCH_ENABLED: ${{ vars.GEMINI_SEARCH_ENABLED }}
+          GEMINI_REFINE_ENABLED: ${{ vars.GEMINI_REFINE_ENABLED }}
+          GEMINI_REFINE_MODEL: ${{ vars.GEMINI_REFINE_MODEL }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           TZ: "Asia/Seoul"
         run: |
