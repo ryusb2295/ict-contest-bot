@@ -49,7 +49,7 @@ class FallbackCollectorManager(BaseCollector):
             except Exception as e:
                 logger.warning("Gemini collection encountered error: %s", e)
         else:
-            logger.info("No GEMINI_API_KEY detected. Collecting from public sites only.")
+            logger.info("Gemini search is disabled or no valid API key is configured. Collecting from public sites only.")
 
         # Wevity runs even when Gemini succeeds.
         try:

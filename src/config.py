@@ -55,6 +55,9 @@ class Config:
     gemini_model: str = field(
         default_factory=lambda: os.getenv("GEMINI_MODEL", "gemini-3.8-flash").strip()
     )
+    gemini_search_enabled: bool = field(
+        default_factory=lambda: os.getenv("GEMINI_SEARCH_ENABLED", "false").strip().lower() in ("1", "true", "yes")
+    )
     timezone: str = field(
         default_factory=lambda: os.getenv("TZ", "Asia/Seoul").strip()
     )
@@ -83,7 +86,7 @@ class Config:
 
     @property
     def has_gemini(self) -> bool:
-        return bool(self.gemini_api_key and not self.gemini_api_key.lower().startswith("your_"))
+        return bool(self.gemini_search_enabled and self.gemini_api_key and not self.gemini_api_key.lower().startswith("your_"))
 
 
 # Global default configuration instance

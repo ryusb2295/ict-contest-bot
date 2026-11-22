@@ -2,7 +2,7 @@
 
 정보통신·컴퓨터공학 전공 대학생을 대상으로 국내 해커톤, AI·SW·데이터·ICT 공모전 신규 공고와 마감 임박 공고를 Discord 채널에 자동으로 보내는 봇.
 
-Gemini API 무료 티어 + GitHub Actions로 운영하며 별도 서버 없이 작동함.
+GitHub Actions로 운영하며 별도 서버 없이 작동함. Gemini 검색은 선택 기능임.
 
 ## 주요 기능
 
@@ -19,14 +19,14 @@ AI 도구로 광고·영상·포스터를 제작하는 공모전과 e스포츠 �
 
 ## 수집 경로
 
-- **Google 검색** Gemini API 키가 설정된 경우 여러 웹사이트의 공모전을 검색
+- **Google 검색** Gemini 검색을 명시적으로 켜고 사용 가능한 API 키가 있을 때 여러 웹사이트의 공모전을 검색
 - **Wevity** [Wevity](https://www.wevity.com) 기획/아이디어·과학/기술·IT 분야의 접수 중 목록 여러 페이지를 매번 직접 수집
 - **DAKER** [DAKER](https://daker.ai/public/hackathons) AI·데이터 해커톤을 매번 직접 수집
 - **씽유** [접수 중 IT·SW 공모전](https://thinkyou.co.kr/contest/sector.asp?serfield=5&serstatus=1) 목록과 상세 페이지를 확인
 - **코워커** [진행 중 공모전](https://co-worker.co.kr/Contest/state_contest_list?contest_state=3) 목록에서 ICT 관련 공고의 참가 자격과 마감일을 확인
 - **콘테스트코리아** [학문·과학·IT 공모전](https://www.contestkorea.com/sub/list.php?Txt_bcode=030310001&int_gbn=1) 목록에서 참가 대상과 접수 기간을 확인
 
-> Gemini 무료 티어는 Google Search Grounding 사용에 제한이 있을 수 있음. API 키가 없거나 검색에 실패해도 Wevity·DAKER·씽유·코워커 수집은 실행함.
+> Gemini 3 이상 모델의 Google Search Grounding은 무료 API 등급에서 사용할 수 없다. 검색 기능을 쓰려면 사용 가능한 프로젝트에서 `GEMINI_SEARCH_ENABLED=true`를 설정한다. 꺼져 있거나 검색에 실패해도 공개 사이트 수집은 실행한다.
 
 ## 로컬 실행
 
@@ -62,8 +62,9 @@ GitHub에서 실제 알림을 시험할 때는 **Actions → Daily ICT Contest A
 | 변수명 | 필수 | 설명 |
 |--------|------|------|
 | `DISCORD_WEBHOOK_URL` | ✅ | Discord 채널 설정 → 연동 → 웹후크에서 복사 |
-| `GEMINI_API_KEY` | 권장 | [Google AI Studio](https://aistudio.google.com)에서 발급. 없으면 Wevity 폴백만 사용 |
+| `GEMINI_API_KEY` | 선택 | Gemini 검색을 켤 때만 사용. 없으면 공개 사이트에서 수집 |
 | `GEMINI_MODEL` | 선택 | 기본값 `gemini-3.8-flash` |
+| `GEMINI_SEARCH_ENABLED` | 선택 | 기본값 `false`. 검색 연결 사용 가능 시 `true` |
 | `ALERT_DAYS` | 선택 | 마감 알림 기준일 (기본값 `7,3,1`) |
 
 ## GitHub Actions 설정
@@ -74,6 +75,7 @@ GitHub에서 실제 알림을 시험할 때는 **Actions → Daily ICT Contest A
 
 - `DISCORD_WEBHOOK_URL` : Discord 웹후크 URL
 - `GEMINI_API_KEY` : Gemini API 키
+- `GEMINI_SEARCH_ENABLED` : 검색 연결을 사용할 수 있을 때 Actions 변수로 `true` 설정
 
 ### 2. Actions 쓰기 권한 활성화
 

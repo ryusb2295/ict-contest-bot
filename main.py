@@ -89,7 +89,7 @@ def main() -> int:
 
     print("=" * 60)
     print(f" [ICT Contest Bot] 시작 (Dry-Run: {args.dry_run})")
-    print(f" - Gemini API 설정 여부: {'등록됨' if config.has_gemini else '미등록 (폴백 모드 동작)'}")
+    print(f" - Gemini 검색: {'사용' if config.has_gemini else '사용 안 함 (공개 사이트 수집)'}")
     print(f" - Discord Webhook 설정 여부: {'등록됨' if config.has_webhook else '미등록'}")
     print("=" * 60)
 
