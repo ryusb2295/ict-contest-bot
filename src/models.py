@@ -65,8 +65,8 @@ def normalize_title(title: str) -> str:
     """Normalize contest title for deduplication."""
     if not title:
         return ""
-    # Remove bracketed tags like [접수중], (해커톤), [D-7]
-    cleaned = re.sub(r"\[.*?\]|\(.*?\)", " ", title)
+    # Keep bracketed event names; only remove status labels.
+    cleaned = re.sub(r"\[(?:접수중|모집중|진행중|마감임박|공고|안내|D-?\d+)\]", " ", title, flags=re.IGNORECASE)
     # Remove special characters and excessive whitespace
     cleaned = re.sub(r"[^\w\s가-힣]", " ", cleaned)
     return " ".join(cleaned.split()).lower()

@@ -168,8 +168,22 @@ class ContestBot:
         if not dry_run and not already_sent_today:
             pending = [(contest, stage) for contest, stage in pending if contest.id not in partial_ids]
         if announcements and should_send and pending:
+            was_new = {contest.id: not contest.has_alert_sent("NEW") for contest, _ in pending}
+
+            def record_page(items):
+                if dry_run or already_sent_today:
+                    return
+                sent_ids = set(self.storage.partial_digest_ids)
+                sent_ids.update(contest.id for contest, _ in items)
+                self.storage.partial_digest_ids = list(sent_ids)
+                for contest, stage in items:
+                    self.storage.mark_alert_sent(contest.id, "NEW")
+                    if stage not in ("NEW", "ONGOING"):
+                        self.storage.mark_alert_sent(contest.id, stage)
+                self.storage.save()
+
             success, msg, included = self.discord.send_digest(
-                pending, dry_run=dry_run
+                pending, dry_run=dry_run, on_page_sent=record_page
             )
             if not dry_run and not already_sent_today:
                 self.storage.partial_digest_ids = list(partial_ids | {contest.id for contest, _ in included})
@@ -184,7 +198,7 @@ class ContestBot:
             else:
                 logger.warning("Failed to send Discord digest: %s", msg)
             for contest, stage in included:
-                if not contest.has_alert_sent("NEW"):
+                if was_new[contest.id]:
                     new_alerts_sent += 1
                     if not dry_run:
                         self.storage.mark_alert_sent(contest.id, "NEW")

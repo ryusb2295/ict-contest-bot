@@ -5,6 +5,7 @@ import difflib
 import json
 import logging
 import os
+import re
 import tempfile
 from datetime import datetime
 from pathlib import Path
@@ -13,6 +14,38 @@ from typing import Dict, List, Optional, Tuple
 from src.models import Contest, normalize_title, normalize_url
 
 logger = logging.getLogger(__name__)
+
+
+def _same_edition(left: Contest, right: Contest) -> bool:
+    """Avoid merging different years or numbered editions of a recurring contest."""
+    left_years = set(re.findall(r"20\d{2}", left.title))
+    right_years = set(re.findall(r"20\d{2}", right.title))
+    if left_years and right_years and left_years.isdisjoint(right_years):
+        return False
+    left_rounds = set(re.findall(r"제\s*(\d+)\s*회|시즌\s*(\d+)", left.title))
+    right_rounds = set(re.findall(r"제\s*(\d+)\s*회|시즌\s*(\d+)", right.title))
+    if left_rounds and right_rounds and left_rounds.isdisjoint(right_rounds):
+        return False
+    return True
+
+
+def _same_title(left: Contest, right: Contest) -> bool:
+    if not _same_edition(left, right):
+        return False
+    left_title = normalize_title(left.title)
+    right_title = normalize_title(right.title)
+    if not left_title or not right_title:
+        return False
+    ratio = difflib.SequenceMatcher(None, left_title, right_title).ratio()
+    if ratio >= 0.85:
+        return True
+    # Portals often add different event prefixes around the same long title.
+    if not left.apply_end or left.apply_end != right.apply_end:
+        return False
+    compact_left = left_title.replace(" ", "")
+    compact_right = right_title.replace(" ", "")
+    match = difflib.SequenceMatcher(None, compact_left, compact_right).find_longest_match()
+    return match.size >= 15 and match.size / min(len(compact_left), len(compact_right)) >= 0.55
 
 
 class ContestStorage:
@@ -78,6 +111,33 @@ class ContestStorage:
                 except Exception as ex:
                     logger.warning("Failed to parse contest item %s: %s", item.get("title"), ex)
 
+            loaded = list(self._contests.values())
+            self._contests = {}
+            for contest in loaded:
+                existing = self.find_duplicate(contest)
+                if existing is None:
+                    self._contests[contest.id] = contest
+                    continue
+                if not existing.apply_end and contest.apply_end:
+                    existing.apply_end = contest.apply_end
+                if not existing.apply_start and contest.apply_start:
+                    existing.apply_start = contest.apply_start
+                if existing.organizer == "미확인 / 상세 공고 참조" and contest.organizer:
+                    existing.organizer = contest.organizer
+                if existing.target == "미확인 / 상세 공고 참조" and contest.target:
+                    existing.target = contest.target
+                if not existing.description and contest.description:
+                    existing.description = contest.description
+                for stage in contest.alert_history:
+                    if stage not in existing.alert_history:
+                        existing.alert_history.append(stage)
+                if contest.last_alert_at and (not existing.last_alert_at or contest.last_alert_at > existing.last_alert_at):
+                    existing.last_alert_at = contest.last_alert_at
+                if contest.id in self.partial_digest_ids:
+                    self.partial_digest_ids = [existing.id if item_id == contest.id else item_id for item_id in self.partial_digest_ids]
+            if len(loaded) != len(self._contests):
+                logger.info("Merged %d duplicate stored contests.", len(loaded) - len(self._contests))
+
             logger.info("Loaded %d contests from %s", len(self._contests), self.file_path)
         except Exception as e:
             logger.error("Error reading storage file %s: %s", self.file_path, e)
@@ -99,19 +159,14 @@ class ContestStorage:
             return self._contests[candidate.id]
 
         cand_norm_url = normalize_url(candidate.url)
-        cand_norm_title = normalize_title(candidate.title)
-
         for existing in self._contests.values():
             # 2. Normalized URL match
-            if cand_norm_url and cand_norm_url == normalize_url(existing.url):
+            if cand_norm_url and cand_norm_url == normalize_url(existing.url) and _same_edition(candidate, existing):
                 return existing
 
-            # 3. High Title similarity match
-            exist_norm_title = normalize_title(existing.title)
-            if cand_norm_title and exist_norm_title:
-                ratio = difflib.SequenceMatcher(None, cand_norm_title, exist_norm_title).ratio()
-                if ratio >= 0.85:
-                    return existing
+            # 3. Same edition and sufficiently similar title
+            if _same_title(candidate, existing):
+                return existing
 
         return None
 

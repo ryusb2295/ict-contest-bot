@@ -5,7 +5,7 @@ import json
 import logging
 import time
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 import urllib.request
 import urllib.error
 
@@ -162,6 +162,7 @@ class DiscordWebhookClient:
         self,
         announcements: List[Tuple[Contest, str]],
         dry_run: bool = False,
+        on_page_sent: Optional[Callable[[List[Tuple[Contest, str]]], None]] = None,
     ) -> Tuple[bool, str, List[Tuple[Contest, str]]]:
         """Send every alert in deadline order, splitting across webhook messages as needed."""
         if not announcements:
@@ -242,6 +243,8 @@ class DiscordWebhookClient:
             if not success:
                 return False, f"{page}/{len(batches)} 페이지 전송 실패: {message}", sent
             sent.extend(items)
+            if on_page_sent:
+                on_page_sent(items)
         return True, "DRY_RUN_OK" if dry_run else "SUCCESS", sent
 
     def send_source_warning(self, warnings: List[str], dry_run: bool = False) -> Tuple[bool, str]:

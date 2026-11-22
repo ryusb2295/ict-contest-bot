@@ -21,6 +21,7 @@ class TestModels(unittest.TestCase):
         self.assertIn("2026 제1회 ai 해커톤 대회", cleaned)
         self.assertNotIn("[", cleaned)
         self.assertNotIn("!", cleaned)
+        self.assertIn("서울관광 프롬프톤", normalize_title("[2026 서울관광 프롬프톤] 참가자모집"))
 
     def test_contest_id_determinism(self):
         url = "https://example.com/hackathon"

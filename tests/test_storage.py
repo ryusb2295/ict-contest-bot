@@ -9,6 +9,62 @@ from src.storage import ContestStorage
 
 
 class TestStorage(unittest.TestCase):
+    def test_cross_site_title_prefixes_deduplicate_but_new_year_does_not(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            storage = ContestStorage(Path(tmp_dir) / "contests.json")
+            first = Contest.create(
+                title="2026 대구 로컬AI그라운드 - 지역문제 해결형 AI활용 경진대회",
+                url="https://official.example/contest", apply_end="2026-11-30",
+            )
+            same = Contest.create(
+                title="2026 창업도시 프로젝트 <지역문제 해결형 AI활용 경진대회>",
+                url="https://portal.example/view/123", apply_end="2026-11-30",
+            )
+            next_year = Contest.create(
+                title="2027 대구 로컬AI그라운드 - 지역문제 해결형 AI활용 경진대회",
+                url="https://official.example/next", apply_end="2027-11-30",
+            )
+            new, _ = storage.add_or_update([first, same, next_year])
+            self.assertEqual(len(new), 2)
+
+    def test_load_merges_existing_cross_site_duplicates_and_alert_history(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            path = Path(tmp_dir) / "contests.json"
+            first = Contest.create(
+                title="2026 대구 로컬AI그라운드 - 지역문제 해결형 AI활용 경진대회",
+                url="https://official.example/contest", apply_end="2026-11-30",
+            )
+            same = Contest.create(
+                title="2026 창업도시 프로젝트 <지역문제 해결형 AI활용 경진대회>",
+                url="https://portal.example/view/123", apply_end="2026-11-30",
+            )
+            first.alert_history = ["NEW"]
+            same.alert_history = ["D-7"]
+            path.write_text(json.dumps({"contests": [first.model_dump(), same.model_dump()],
+                                        "partial_digest_ids": [same.id]}), encoding="utf-8")
+            storage = ContestStorage(path)
+            self.assertEqual(len(storage.contests), 1)
+            self.assertEqual(set(storage.contests[0].alert_history), {"NEW", "D-7"})
+            self.assertEqual(storage.partial_digest_ids, [first.id])
+
+    def test_same_homepage_keeps_different_years_separate(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            storage = ContestStorage(Path(tmp_dir) / "contests.json")
+            contests = [Contest.create(title=f"{year} AI 개발 경진대회",
+                                       url="https://example.com/contest", apply_end=f"{year}-11-30")
+                        for year in (2026, 2027)]
+            new, _ = storage.add_or_update(contests)
+            self.assertEqual(len(new), 2)
+
+    def test_different_rounds_in_same_year_are_separate(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            storage = ContestStorage(Path(tmp_dir) / "contests.json")
+            contests = [Contest.create(title=f"2026 제{round_no}회 대학생 AI 개발 경진대회",
+                                       url=f"https://example.com/{round_no}", apply_end="2026-11-30")
+                        for round_no in (1, 2)]
+            new, _ = storage.add_or_update(contests)
+            self.assertEqual(len(new), 2)
+
     def test_storage_empty_initialization(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
             db_file = Path(tmp_dir) / "contests.json"

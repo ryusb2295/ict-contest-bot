@@ -22,10 +22,12 @@ class TestBotIntegration(unittest.TestCase):
             bot.storage.add_or_update(contests)
             sent_batches = []
 
-            def send_digest(items, dry_run=False):
+            def send_digest(items, dry_run=False, on_page_sent=None):
                 sent_batches.append([contest.id for contest, _ in items])
                 if len(sent_batches) == 1:
+                    on_page_sent(items[:1])
                     return False, "HTTP 500", items[:1]
+                on_page_sent(items)
                 return True, "SUCCESS", items
 
             with patch("src.bot.get_current_kst_date", return_value=date(2026, 11, 22)):
@@ -33,6 +35,8 @@ class TestBotIntegration(unittest.TestCase):
                     with patch.object(bot.discord, "send_digest", side_effect=send_digest):
                         bot.run()
                         self.assertIsNone(bot.storage.last_digest_date)
+                        saved = json.loads((Path(tmp_dir) / "contests.json").read_text(encoding="utf-8"))
+                        self.assertEqual(saved["partial_digest_ids"], [sent_batches[0][0]])
                         bot.storage = bot.storage.__class__(Path(tmp_dir) / "contests.json")
                         bot.run()
             self.assertEqual(len(sent_batches[0]), 3)
