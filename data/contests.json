@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-11-21T16:07:12.621839",
-  "last_digest_date": "2026-11-21",
+  "updated_at": "2026-11-22T15:47:52.026112",
+  "last_digest_date": "2026-11-22",
   "last_test_digest_date": "2026-11-19",
   "contests": [
     {
@@ -287,9 +287,10 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-20T16:15:01.032049+09:00",
-      "last_alert_at": "2026-11-20T16:15:19.984832",
+      "last_alert_at": "2026-11-22T15:47:52.026045",
       "alert_history": [
-        "NEW"
+        "NEW",
+        "D-7"
       ]
     },
     {
