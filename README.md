@@ -1,127 +1,127 @@
 # ICT 공모전 Discord 알림 봇
 
-정보통신·컴퓨터공학 전공 대학생을 대상으로 국내 해커톤, AI·SW·데이터·ICT 공모전 신규 공고와 마감 임박 공고를 Discord 채널에 자동으로 보내는 봇.
+국내 ICT 공모전과 해커톤 공고를 모아 매일 Discord 채널에 보내는 Python 봇. 여러 사이트를 확인하면서 같은 공고를 반복해서 읽거나 마감일을 놓치는 일이 번거로워 만들었다. 별도 서버 없이 GitHub Actions에서 실행한다.
 
-GitHub Actions로 운영하며 별도 서버 없이 작동함. Gemini 검색은 선택 기능임.
+## 왜 만들었나
 
-## 주요 기능
+공모전 정보가 사이트마다 흩어져 있고, 검색 결과에는 접수가 끝난 공고나 기술 분야와 관계없는 행사도 섞여 있다. 제목만으로는 참가 자격과 마감일을 알기 어려워 상세 페이지를 확인해야 한다.
 
-1. 참가 대상에 대학생·학부생·청년·일반인 또는 대한민국 국민 누구나·제한없음 등이 명시된 공고만 수집 (전공 무관 공고 필터링)
-2. 공고명, 주최기관, 접수 기간, 행사일, 참가자격, 공식 URL 추출
-3. 원문에서 마감일을 확인한 공고만 알림에 포함 (날짜 추측 없음)
-4. 중복 공고 자동 제거 (URL·제목 핵심 구절·마감일 기준, 다른 연도·회차는 별도 유지)
-5. 진행 중인 공모전을 하루에 Discord 요약으로 총정리하고 길면 여러 메시지로 나눠 발송 (각 메시지 성공 직후 상태 저장, 중간 실패 후 재실행하면 이미 보낸 공고는 건너뜀)
-6. 교육·취업 모집을 제외하고, 수집처 오류나 수집 건수 급감 시 Discord에 상태 알림 발송
-6. 마감일이 빠른 순서로 정렬하고 공고명, 마감일, D-day, 공식 링크를 간결하게 표시
-7. 매일 오전 9:17(KST) GitHub Actions 자동 실행
+이 봇은 공개 공고 사이트에서 후보를 모은 다음 참가 자격, 기술 관련성, 접수 마감일을 확인한다. 조건을 통과한 공고를 마감일 순서로 정리해 Discord에 보낸다.
 
-AI 도구로 광고·영상·포스터를 제작하는 공모전과 e스포츠 대회는 제외한다. AI 모델·에이전트 개발, 데이터 분석, 소프트웨어·임베디드·보안·블록체인처럼 기술 과제가 확인되는 공모전을 우선한다. 이미 저장된 공고도 매일 같은 기준으로 다시 걸러서 요약한다.
+## 동작 방식
 
-## 수집 경로
+```text
+공고 사이트 5곳에서 목록과 상세 페이지 수집
+                ↓
+참가 대상, ICT 관련성, 마감일 검사
+                ↓
+Gemini로 애매한 공고 재검토 (선택)
+                ↓
+기존 공고와 중복 비교, JSON 파일에 상태 저장
+                ↓
+진행 중인 공고를 마감일 순으로 Discord에 발송
+```
 
-- **Google 검색** Gemini 검색을 명시적으로 켜고 사용 가능한 API 키가 있을 때 여러 웹사이트의 공모전을 검색
-- **Gemini 무료 검토** 공개 사이트에서 수집한 공고를 `gemini-3.5-flash-lite`로 검토. 원문에 있는 근거로 명백한 제외 사유가 확인될 때만 걸러냄 (Google 검색 연결 사용 안 함)
-- **Wevity** [Wevity](https://www.wevity.com) 기획/아이디어·과학/기술·IT 분야의 접수 중 목록 여러 페이지를 매번 직접 수집
-- **DAKER** [DAKER](https://daker.ai/public/hackathons) AI·데이터 해커톤을 매번 직접 수집
-- **씽유** [접수 중 IT·SW 공모전](https://thinkyou.co.kr/contest/sector.asp?serfield=5&serstatus=1) 목록과 상세 페이지를 확인
-- **코워커** [진행 중 공모전](https://co-worker.co.kr/Contest/state_contest_list?contest_state=3) 목록에서 ICT 관련 공고의 참가 자격과 마감일을 확인
-- **콘테스트코리아** [학문·과학·IT 공모전](https://www.contestkorea.com/sub/list.php?Txt_bcode=030310001&int_gbn=1) 목록에서 참가 대상과 접수 기간을 확인
+매일 한국 시간 **오전 9시 17분**에 GitHub Actions가 실행된다. 실제 메시지는 수집이 끝난 뒤 도착한다. 이미 그날 요약을 보냈다면 다시 실행해도 중복 발송하지 않는다.
 
-> Gemini 3 이상 모델의 Google Search Grounding은 무료 API 등급에서 사용할 수 없다. 검색 기능을 쓰려면 사용 가능한 프로젝트에서 `GEMINI_SEARCH_ENABLED=true`를 설정한다. 꺼져 있거나 검색에 실패해도 공개 사이트 수집은 실행한다.
-> 무료 Gemini 검토는 `GEMINI_REFINE_ENABLED=true`로 별도 활성화한다. API 오류가 나거나 근거가 불충분하면 기존 규칙 필터 결과를 유지한다.
+### 어디에서 가져오나
 
-## 로컬 실행
+| 사이트 | 확인하는 내용 |
+|---|---|
+| [Wevity](https://www.wevity.com/) | 기획, 과학기술, IT 분야의 접수 중 공고 |
+| [DAKER](https://daker.ai/public/hackathons) | AI와 데이터 해커톤 |
+| [씽유](https://thinkyou.co.kr/contest/sector.asp?serfield=5&serstatus=1) | 접수 중인 IT 및 SW 공모전 |
+| [코워커](https://co-worker.co.kr/Contest/state_contest_list?contest_state=3) | 진행 중인 공모전의 상세 정보 |
+| [콘테스트코리아](https://www.contestkorea.com/sub/list.php?Txt_bcode=030310001&int_gbn=1) | 학문, 과학, IT 분야 공모전 |
 
-```bash
-python -m venv .venv
-# Windows: .venv\Scripts\activate
+목록에서 후보 링크를 찾고 상세 페이지에서 참가 대상과 접수 기간을 읽는다. 수집처의 페이지 구조가 바뀌면 해당 수집기를 수정해야 한다.
+
+### 어떤 공고를 보내나
+
+- AI, 소프트웨어, 데이터, 보안, 임베디드 등 기술 과제가 있는 공모전과 해커톤을 대상으로 한다.
+- 대학생과 학부생뿐 아니라 청년, 일반인, 대한민국 국민 누구나 참가할 수 있는 공고도 포함한다. 공고에 적힌 참가 자격을 기준으로 판단한다.
+- 원문에서 접수 마감일을 확인할 수 있어야 한다. 마감일을 추측해 채우지 않는다.
+- 교육 과정, 채용 공고, 광고 영상이나 포스터 제작처럼 기술 과제가 중심이 아닌 행사는 제외한다.
+- 같은 공고가 여러 사이트에 올라오면 URL, 제목, 마감일을 비교해 중복을 줄인다. 다른 연도나 회차의 공고는 별도로 취급한다.
+
+규칙을 통과한 공고는 선택적으로 Gemini에 한 번 더 보여 준다. Gemini가 **원문에 있는 구절을 근거로** 제외 사유를 제시했을 때만 제외한다. 응답이 불확실하거나 API 호출이 실패하면 기존 규칙의 결과를 유지한다. 현재 운영 설정은 무료 모델 `gemini-3.5-flash-lite`를 사용하며, Gemini의 Google 검색 연결은 꺼져 있다. AI가 새 공고를 검색하는 방식은 아니다.
+
+### Discord 메시지
+
+진행 중인 공고를 마감일이 빠른 순으로 묶어 보낸다. 각 항목에 제목과 원문 링크, 마감일, 남은 날짜, 주최와 참가 대상을 표시한다. 메시지가 길어지면 여러 개로 나눠 보내고, 중간에 전송이 실패하면 다음 실행에서 이미 보낸 부분을 건너뛴다. 마감 D-7, D-3, D-1에 해당하는 공고도 표시한다.
+
+## 구현하면서 신경 쓴 점
+
+| 문제 | 처리 방식 |
+|---|---|
+| 같은 공고가 여러 사이트에 있음 | 저장된 공고와 비교해 중복을 합치고, 연도와 회차는 구분 |
+| 마감일이 없는 공고가 섞임 | 확인된 마감일이 없으면 알림 대상에서 제외 |
+| AI가 잘못 판단하거나 호출에 실패할 수 있음 | 원문 근거가 있는 제외 판단만 반영하고, 실패하면 규칙 필터 결과 사용 |
+| Discord 메시지 길이 제한 | 공고를 나눠 발송하고 성공한 페이지마다 상태 저장 |
+| 사이트 수집이 갑자기 0건이 됨 | 수집처별 건수와 오류를 기록하고 Discord에 상태 알림 |
+| 봇을 다시 실행하면 메시지가 반복됨 | 마지막 발송 날짜와 공고별 알림 상태를 JSON에 저장 |
+
+Python으로 수집, 필터링, 발송 흐름을 구현했다. 공고와 알림 상태는 `data/contests.json`에 저장하며, GitHub Actions가 실행 후 변경된 파일을 저장소에 커밋한다. 데이터베이스나 별도 상시 서버가 필요하지 않은 규모라 이 방식을 골랐다.
+
+## 직접 실행하기
+
+Python 3.11 기준. PowerShell에서 저장소 폴더로 이동한 뒤 실행한다.
+
+```powershell
+cd C:\Projects\ict-contest-bot
 python -m pip install -r requirements.txt
+Copy-Item .env.example .env
 ```
 
-`.env.example`을 복사해 `.env` 생성 후 키 입력:
+`.env`에 Discord 웹훅 주소를 넣는다. Gemini 검토를 쓰려면 API 키와 `GEMINI_REFINE_ENABLED=true`도 설정한다. Google 검색 연결은 무료 검토에 필요하지 않다.
 
-```bash
-copy .env.example .env
-# .env 파일에 실제 키 입력
+```powershell
+python main.py --test-webhook   # 웹훅에 테스트 메시지 발송
+python main.py --dry-run        # 수집과 필터링 확인, Discord 발송 없음
+python main.py                  # 실제 공고 요약 발송
 ```
 
-```bash
-# Discord 웹후크 연결 테스트
-python main.py --test-webhook
+오늘 이미 요약이 발송됐다면 `python main.py --send-test-digest`로 하루에 한 번 추가 요약을 보낼 수 있다. 이 옵션도 같은 날 다시 실행하면 중복 발송하지 않는다.
 
-# 공고 수집 (Discord 미발송, 로그만 출력)
-python main.py --dry-run
+테스트는 다음 명령으로 실행한다.
 
-# 실제 실행
-python main.py
+```powershell
+python -m unittest discover -s tests -q
 ```
 
-GitHub에서 실제 알림을 시험할 때는 **Actions → Daily ICT Contest Alert Bot → Run workflow**에서 `master`를 선택한다. 이전 실행 화면의 **Re-run**은 당시 커밋의 예전 코드를 다시 실행하므로 사용하지 않는다.
-오늘 요약이 이미 발송됐다면 `send_test_digest`를 선택해 수정된 요약을 한 번 더 확인할 수 있다. 같은 날 이 옵션을 다시 실행해도 추가 발송하지 않는다.
+### GitHub Actions 설정
 
-## 환경변수
+저장소의 **Settings → Secrets and variables → Actions**에서 아래 항목을 등록한다.
 
-| 변수명 | 필수 | 설명 |
-|--------|------|------|
-| `DISCORD_WEBHOOK_URL` | ✅ | Discord 채널 설정 → 연동 → 웹후크에서 복사 |
-| `GEMINI_API_KEY` | 선택 | Gemini 검색을 켤 때만 사용. 없으면 공개 사이트에서 수집 |
-| `GEMINI_MODEL` | 선택 | 기본값 `gemini-3.8-flash` |
-| `GEMINI_SEARCH_ENABLED` | 선택 | 기본값 `false`. 검색 연결 사용 가능 시 `true` |
-| `GEMINI_REFINE_ENABLED` | 선택 | 기본값 `false`. 무료 Gemini 공고 검토를 사용하려면 `true` |
-| `GEMINI_REFINE_MODEL` | 선택 | 기본값 `gemini-3.5-flash-lite` |
-| `ALERT_DAYS` | 선택 | 마감 알림 기준일 (기본값 `7,3,1`) |
+| 종류 | 이름 | 용도 |
+|---|---|---|
+| Secret | `DISCORD_WEBHOOK_URL` | 메시지를 받을 Discord 채널의 웹훅 주소 |
+| Secret | `GEMINI_API_KEY` | Gemini 검토를 사용할 때 필요한 키 |
+| Variable | `GEMINI_REFINE_ENABLED` | 무료 Gemini 검토를 켜려면 `true` |
+| Variable | `GEMINI_REFINE_MODEL` | 기본값 `gemini-3.5-flash-lite` |
 
-## GitHub Actions 설정
+웹훅 주소를 바꿨다면 로컬 `.env`와 GitHub Secret을 각각 갱신해야 한다. 로컬 파일을 수정해도 GitHub Secret은 자동으로 바뀌지 않는다. Actions가 `data/contests.json`을 푸시할 수 있도록 **Settings → Actions → General → Workflow permissions**에서 쓰기 권한을 허용한다.
 
-### 1. 레포지토리 Secrets 등록
-
-**Settings → Secrets and variables → Actions → New repository secret**
-
-- `DISCORD_WEBHOOK_URL` : Discord 웹후크 URL
-- `GEMINI_API_KEY` : Gemini API 키
-- `GEMINI_SEARCH_ENABLED` : 검색 연결을 사용할 수 있을 때 Actions 변수로 `true` 설정
-- `GEMINI_REFINE_ENABLED` : 무료 Gemini 검토를 사용하려면 Actions 변수로 `true` 설정
-
-### 2. Actions 쓰기 권한 활성화
-
-**Settings → Actions → General → Workflow permissions**  
-→ **Read and write permissions** 선택 후 저장
-
-GitHub Actions가 `data/contests.json`을 커밋할 때 필요함.
-
-### 3. 실행 주기
-
-매일 오전 9:17 KST(UTC 00:17)에 자동 실행됨. 수동 실행은 Actions 탭에서 **Run workflow** 버튼으로 가능.
+수동 실행은 **Actions → Daily ICT Contest Alert Bot → Run workflow**에서 `master`를 선택한다. 오늘 요약을 이미 보냈고 메시지 모양을 다시 확인하려면 `send_test_digest`를 선택한다. 이전 실행의 **Re-run**은 당시 커밋을 다시 실행하므로 최신 코드 확인에는 **Run workflow**를 쓴다.
 
 ## 프로젝트 구조
 
-```
-ict-contest-bot/
-├── main.py                  # 진입점 (CLI 옵션 처리)
-├── requirements.txt
-├── .env.example             # 환경변수 예시 (실제 키 입력 금지)
-├── data/
-│   └── contests.json        # 수집된 공고 및 알림 상태 (자동 갱신)
-├── src/
-│   ├── bot.py               # 전체 흐름 조율
-│   ├── config.py            # 환경변수 로드
-│   ├── models.py            # Contest 데이터 모델
-│   ├── filter.py            # 전공 관련성·자격·만료 필터
-│   ├── deadline.py          # D-7/D-3/D-1 알림 판단
-│   ├── storage.py           # JSON 저장·중복 제거
-│   ├── discord.py           # Embed 생성 및 발송
-│   └── collectors/
-│       ├── gemini_search.py # Gemini Google Search Grounding
-│       ├── wevity_collector.py # Wevity 스크래핑
-│       ├── daker_collector.py # DAKER 해커톤 수집
-│       └── fallback.py      # 수집기 조율
-└── .github/workflows/
-    └── contest-alert.yml    # GitHub Actions 워크플로
+```text
+main.py                    실행 옵션과 결과 출력
+src/bot.py                 수집부터 발송까지 전체 흐름
+src/collectors/            사이트별 목록 및 상세 페이지 수집기
+src/filter.py              분야, 참가 자격, 마감일 검사
+src/gemini_refiner.py      수집된 공고의 선택적 AI 검토
+src/storage.py             공고와 발송 상태 저장, 중복 비교
+src/discord.py             Discord 요약 메시지 생성과 전송
+data/contests.json         수집 공고와 알림 상태
+tests/                    단위 및 통합 테스트
+.github/workflows/         매일 실행하는 GitHub Actions 설정
 ```
 
-## 주의사항
+## 현재 한계
 
-- `.env`는 절대 Git에 올리지 말 것 (`.gitignore`에 포함됨)
-- `data/contests.json`은 GitHub Actions가 자동 커밋함 — 직접 수정 주의
-- Wevity 구조 변경 시 `src/collectors/wevity_collector.py` 선택자 수정 필요
-- 비공식 도구이며 공고 수집 누락이 발생할 수 있음
+- 수집 대상은 위 다섯 사이트의 공개 페이지다. 모든 국내 공모전을 찾는 것은 아니다.
+- 사이트의 HTML 구조가 바뀌거나 상세 정보가 이미지로만 제공되면 일부 공고를 놓칠 수 있다.
+- 참가 자격과 기술 관련성을 문구로 판단하므로 애매한 공고는 원문을 다시 확인하는 편이 안전하다.
+- `.env`에는 비밀 키가 들어가므로 Git에 올리지 않는다. GitHub Actions에서는 Secret으로 관리한다.
