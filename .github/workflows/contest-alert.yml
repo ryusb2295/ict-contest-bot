@@ -2,8 +2,8 @@ name: Daily ICT Contest Alert Bot
 
 on:
   schedule:
-    # Asia/Seoul 09:17 AM = 00:17 UTC (every day)
-    - cron: '17 0 * * *'
+    # Asia/Seoul 08:00 AM = 23:00 UTC (previous day)
+    - cron: '0 23 * * *'
   workflow_dispatch:
     inputs:
       send_test_digest:

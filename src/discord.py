@@ -275,7 +275,7 @@ class DiscordWebhookClient:
             "title": "✅ ICT Contest Bot — 연결 테스트 성공",
             "description": (
                 "Discord Webhook 연결이 정상적으로 확인됐음.\n"
-                "매일 오전 9:17 KST에 신규 공고와 마감 임박 알림을 자동으로 발송함."
+                "매일 오전 8:00 KST에 신규 공고와 마감 임박 알림을 자동으로 발송함."
             ),
             "color": COLOR_TEST,
             "fields": [
