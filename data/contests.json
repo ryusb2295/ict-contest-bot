@@ -1,15 +1,15 @@
 {
-  "updated_at": "2026-11-24T11:30:26.293504",
-  "last_digest_date": "2026-11-22",
+  "updated_at": "2026-11-24T18:55:27.268378",
+  "last_digest_date": "2026-11-24",
   "last_test_digest_date": "2026-11-22",
   "source_counts": {
     "wevity": 1,
     "daker": 0,
     "thinkyou": 2,
-    "coworker": 0,
-    "contestkorea": 6
+    "coworker": 2,
+    "contestkorea": 4
   },
-  "partial_digest_date": "2026-11-24",
+  "partial_digest_date": null,
   "partial_digest_ids": [],
   "contests": [
     {
@@ -180,7 +180,7 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-18T20:09:56.830713+09:00",
-      "last_alert_at": "2026-11-18T20:10:22.261368",
+      "last_alert_at": "2026-11-24T18:55:27.266966",
       "alert_history": [
         "NEW"
       ]
@@ -199,9 +199,10 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-18T20:09:56.830713+09:00",
-      "last_alert_at": "2026-11-18T20:10:23.058512",
+      "last_alert_at": "2026-11-24T18:55:27.268348",
       "alert_history": [
-        "NEW"
+        "NEW",
+        "D-7"
       ]
     },
     {
@@ -296,7 +297,7 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-20T16:15:01.032049+09:00",
-      "last_alert_at": "2026-11-22T15:47:52.026045",
+      "last_alert_at": "2026-11-24T18:55:27.266964",
       "alert_history": [
         "NEW",
         "D-7"
@@ -316,7 +317,7 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-21T16:06:47.270424+09:00",
-      "last_alert_at": "2026-11-21T16:07:12.621744",
+      "last_alert_at": "2026-11-24T18:55:27.266969",
       "alert_history": [
         "NEW"
       ]
@@ -335,7 +336,7 @@
       "source": "thinkyou",
       "status": "ACTIVE",
       "discovered_at": "2026-11-22T05:52:51.242828",
-      "last_alert_at": "2026-11-22T05:52:55.804498",
+      "last_alert_at": "2026-11-24T18:55:27.266958",
       "alert_history": [
         "NEW",
         "D-7"
@@ -355,8 +356,10 @@
       "source": "coworker",
       "status": "ACTIVE",
       "discovered_at": "2026-11-22T16:06:05.711320",
-      "last_alert_at": null,
-      "alert_history": []
+      "last_alert_at": "2026-11-24T18:55:27.268353",
+      "alert_history": [
+        "NEW"
+      ]
     },
     {
       "id": "65b7e199710daa49",
@@ -372,8 +375,10 @@
       "source": "contestkorea",
       "status": "ACTIVE",
       "discovered_at": "2026-11-22T16:06:16.179911",
-      "last_alert_at": null,
-      "alert_history": []
+      "last_alert_at": "2026-11-24T18:55:27.268356",
+      "alert_history": [
+        "NEW"
+      ]
     },
     {
       "id": "e9ec36d44ae763cf",
@@ -389,8 +394,10 @@
       "source": "contestkorea",
       "status": "ACTIVE",
       "discovered_at": "2026-11-22T16:06:17.430949",
-      "last_alert_at": null,
-      "alert_history": []
+      "last_alert_at": "2026-11-24T18:55:27.268340",
+      "alert_history": [
+        "NEW"
+      ]
     },
     {
       "id": "5b046aaf09ddf5c9",
@@ -406,8 +413,10 @@
       "source": "contestkorea",
       "status": "ACTIVE",
       "discovered_at": "2026-11-22T16:06:20.008757",
-      "last_alert_at": null,
-      "alert_history": []
+      "last_alert_at": "2026-11-24T18:55:27.268349",
+      "alert_history": [
+        "NEW"
+      ]
     },
     {
       "id": "1db0af6c59f44b34",
@@ -423,8 +432,10 @@
       "source": "contestkorea",
       "status": "ACTIVE",
       "discovered_at": "2026-11-22T16:06:22.573067",
-      "last_alert_at": null,
-      "alert_history": []
+      "last_alert_at": "2026-11-24T18:55:27.268355",
+      "alert_history": [
+        "NEW"
+      ]
     },
     {
       "id": "33369087bc636a59",
@@ -440,8 +451,29 @@
       "source": "coworker",
       "status": "ACTIVE",
       "discovered_at": "2026-11-23T16:38:51.254189",
-      "last_alert_at": null,
-      "alert_history": []
+      "last_alert_at": "2026-11-24T18:55:27.268345",
+      "alert_history": [
+        "NEW"
+      ]
+    },
+    {
+      "id": "9af62e178ca8b8ac",
+      "title": "강원 AI 창업아이디어 경진대회",
+      "organizer": "상지대 앵커단",
+      "category": "취업/창업",
+      "target": "대학생",
+      "apply_start": "2026-11-23",
+      "apply_end": "2026-12-07",
+      "event_date": null,
+      "url": "https://sangji-ai-startup-2026.workspace-700806.chatgpt.site",
+      "description": "응모주제 취업/창업 공모개요 - 메모장에 담아두었던 아이디어, 이제 AI와 함께 구체화해 보세요. 상지대학교 앵커사업단과 주식회사 상상력집단이 강원지역 대학 재학생 창업팀을 초대합니다. 우리 주변의 불편함을 발견하고, AI를 활용해 새로운 제품과 서비스의 가능성을 제안하는 대회입니다. 창업 기초 교육부터 전문가 멘토링, 사업계획서 작성과 본선 발표까지. 우리 팀의 아이디어를 사업으로 발전시키는 과정에 도전해 보세요. * 본선 12팀 선발 · 총상금 300만 원 · 총 9팀 시상 우리 팀의 아이디어가 새로운 가능성으로 이어지는 첫걸음. 2026년 12월 7일까지 참가 신청을 완료해 주세요. 사전 온라인 교육 안내 * 본선 참가를 위한 창업 기초 소양교육으로 총 6시간의 온라인 교육을 진행합니다. * 기업가정신",
+      "source": "coworker",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-24T18:54:47.775948",
+      "last_alert_at": "2026-11-24T18:55:27.268351",
+      "alert_history": [
+        "NEW"
+      ]
     }
   ]
 }
