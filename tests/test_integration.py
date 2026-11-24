@@ -57,8 +57,9 @@ class TestBotIntegration(unittest.TestCase):
             with patch("src.bot.get_current_kst_date", return_value=date(2026, 11, 22)):
                 with patch.object(bot.collector, "collect", return_value=[]):
                     with patch.object(bot.discord, "send_digest", side_effect=send_digest):
-                        bot.run()
+                        first_result = bot.run()
                         self.assertIsNone(bot.storage.last_digest_date)
+                        self.assertIn("Discord digest delivery failed: HTTP 500", first_result["errors"])
                         saved = json.loads((Path(tmp_dir) / "contests.json").read_text(encoding="utf-8"))
                         self.assertEqual(saved["partial_digest_ids"], [sent_batches[0][0]])
                         bot.storage = bot.storage.__class__(Path(tmp_dir) / "contests.json")

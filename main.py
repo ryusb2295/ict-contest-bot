@@ -36,7 +36,7 @@ def handle_test_webhook() -> int:
         print(" 1. Discord 채널 설정 > 연동 > 웹후크 생성 > 웹후크 URL 복사")
         print(" 2. 프로젝트 폴더의 .env 파일에 실제 DISCORD_WEBHOOK_URL 추가 (.env.example은 예시용)")
         print(" 3. GitHub Actions의 경우 Repository Secrets에 DISCORD_WEBHOOK_URL 등록")
-        return 0
+        return 1
 
     client = DiscordWebhookClient(webhook_url=config.discord_webhook_url)
     print(f"웹후크 대상: {config.discord_webhook_url[:35]}...")
@@ -50,7 +50,7 @@ def handle_test_webhook() -> int:
         print(f">> [실패] 웹후크 전송 실패: {message}")
         print(">> 웹후크 URL이 올바른지, 채널 권한이 유효한지 확인하세요.")
 
-    return 0
+    return 0 if success else 1
 
 
 def main() -> int:
@@ -112,13 +112,13 @@ def main() -> int:
         if results.get("errors"):
             print(f" - 주의 사항: {len(results['errors'])}건 발생 (상세 로그 참조)")
         print("=" * 60)
-        return 0
+        return 1 if results.get("errors") else 0
 
     except Exception as e:
         # Requirement 8: graceful exit even on unexpected exceptions
         logging.error("Unhandled error during bot execution: %s", e, exc_info=True)
-        print(f"\n[알림] 오류가 발생했으나 시스템을 안전하게 정상 종료합니다: {e}")
-        return 0
+        print(f"\n[오류] 실행을 완료하지 못했습니다: {e}")
+        return 1
 
 
 if __name__ == "__main__":

@@ -205,6 +205,7 @@ class ContestBot:
                         self.storage.partial_digest_ids = []
             else:
                 logger.warning("Failed to send Discord digest: %s", msg)
+                results["errors"].append(f"Discord digest delivery failed: {msg}")
             for contest, stage in included:
                 if was_new[contest.id]:
                     new_alerts_sent += 1

@@ -52,6 +52,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Contest Alert Bot
+        id: bot
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_SEARCH_ENABLED: ${{ vars.GEMINI_SEARCH_ENABLED }}
@@ -67,6 +68,7 @@ jobs:
           fi
 
       - name: Commit & Push Updated Contest State
+        if: ${{ success() || steps.bot.outcome == 'failure' }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
