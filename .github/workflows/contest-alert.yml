@@ -2,8 +2,9 @@ name: Daily ICT Contest Alert Bot
 
 on:
   schedule:
-    # Asia/Seoul 08:00 AM = 23:00 UTC (previous day)
-    - cron: '0 23 * * *'
+    # Asia/Seoul 08:07 and 08:37 = 23:07 and 23:37 UTC (previous day).
+    # The second run recovers a missed schedule; the bot skips an already sent digest.
+    - cron: '7,37 23 * * *'
   workflow_dispatch:
     inputs:
       send_test_digest:
