@@ -49,6 +49,14 @@ class TestFilter(unittest.TestCase):
         self.assertFalse(is_eligible_student("미확인 / 상세 공고 참조"))
 
     def test_is_eligible_student_negative(self):
+        self.assertFalse(is_eligible_student("대학생 누구나, 팀원 중 원주 소재 대학 재학생 1명 필수"))
+        self.assertFalse(is_eligible_student("울산 거주 청년만 참가 가능"))
+        self.assertFalse(is_eligible_student("부산 소재 대학 재학생 대상"))
+        self.assertFalse(is_eligible_student("서울 대학생 참가 가능"))
+        self.assertFalse(is_eligible_student("전국 대학생, 팀원 중 서울 거주자 1명 이상"))
+        self.assertTrue(is_eligible_student("대구·경북 소재 대학 재학생"))
+        self.assertTrue(is_eligible_student("전국 대학생, 거주지 제한 없음"))
+        self.assertTrue(is_eligible_student("전국 대학생 누구나, 부산시 주최"))
         self.assertFalse(is_eligible_student(Contest.create(title="AI 개발 대회", url="https://example.com").target))
         self.assertFalse(is_eligible_student("초등학생 전용"))
         self.assertFalse(is_eligible_student("중학생만 참가 가능"))

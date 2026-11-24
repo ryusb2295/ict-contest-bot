@@ -89,7 +89,12 @@ class DakerCollector(BaseCollector):
             title = title.split(" | DAKER")[0].strip()
             text = detail.get_text("\n", strip=True)
             eligible_terms = ("대학생", "대학원생", "대학(원)생", "학부생", "누구나", "제한없음", "제한 없음", "전국민", "전 국민", "대한민국 국민", "청년", "일반인")
-            eligibility = next((word for word in eligible_terms if word in text), None)
+            # Keep the surrounding condition: a bare "대학생" loses mandatory
+            # local team-member requirements from the original notice.
+            eligibility = next(
+                (line.strip()[:500] for line in text.splitlines()
+                 if any(word in line for word in eligible_terms)), None
+            )
             if not title or not eligibility:
                 continue
             deadline = _submission_deadline(text)

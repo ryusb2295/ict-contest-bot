@@ -54,6 +54,32 @@ INELIGIBLE_TARGET_KEYWORDS = [
     "어린이 전용", "만 65세", "시니어 전용", "재직자 한정", "군인 한정",
 ]
 
+# A positive word such as "대학생" does not override a mandatory local member.
+# Daegu and Gyeongbuk are home regions; the other provinces/metropolitan cities
+# and their common university locations require an explicit eligibility check.
+OUTSIDE_REGION = re.compile(
+    r"강원(?:도|특별자치도)?|원주(?:시)?|춘천(?:시)?|강릉(?:시)?|상지대(?:학교)?|"
+    r"울산(?:시|광역시)?|부산(?:시|광역시)?|경남|경상남도|창원(?:시)?|"
+    r"광주(?:시|광역시)?|전남|전라남도|전북|전라북도|전북특별자치도|"
+    r"대전(?:시|광역시)?|세종(?:시|특별자치시)?|충남|충청남도|충북|충청북도|"
+    r"인천(?:시|광역시)?|경기(?:도)?|서울(?:시|특별시)?|제주(?:도|특별자치도)?"
+)
+LOCAL_REQUIREMENT = re.compile(
+    r"(?:소재|거주|재학|재적|재직|출신|관내|도내|시내|필수|반드시|포함|구성|이상|한\s*명|1\s*명|최소|팀원|팀당|팀별|한정|한함|제한)"
+)
+
+
+def has_outside_region_requirement(text: str) -> bool:
+    """Reject explicit mandatory membership or residence outside Daegu/Gyeongbuk."""
+    for match in OUTSIDE_REGION.finditer(text):
+        context = text[max(0, match.start() - 20):match.end() + 45]
+        if LOCAL_REQUIREMENT.search(context):
+            return True
+        following = text[match.end():match.end() + 12]
+        if re.match(r"\s*(?:지역\s*)?(?:대학(?:원)?생|청년|시민|도민)", following):
+            return True
+    return False
+
 
 def is_relevant_major(title: str, category: str = "", description: str = "") -> bool:
     """Require a technical subject or deliverable, not merely use of an AI tool."""
@@ -79,6 +105,9 @@ def is_eligible_student(target: str) -> bool:
         return False
 
     target_lower = target.lower()
+
+    if has_outside_region_requirement(target):
+        return False
 
     # If it contains any strictly ineligible terms, reject
     if any(ineligible in target_lower for ineligible in INELIGIBLE_TARGET_KEYWORDS):
@@ -129,6 +158,9 @@ def filter_contest(
 
     if not is_relevant_major(title, category, description):
         return False, "ICT/SW/AI/컴퓨터공학 관련 분야 아님"
+
+    if has_outside_region_requirement(f"{target} {description}"):
+        return False, "대구·경북 외 지역 참가 요건"
 
     if not is_eligible_student(target):
         return False, "대학생 참가 대상 아님 (초/중/고 전용 또는 특정 연령 제한)"
