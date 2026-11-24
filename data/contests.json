@@ -1,15 +1,15 @@
 {
-  "updated_at": "2026-11-23T16:39:29.807916",
+  "updated_at": "2026-11-24T11:30:26.293504",
   "last_digest_date": "2026-11-22",
   "last_test_digest_date": "2026-11-22",
   "source_counts": {
-    "wevity": 2,
+    "wevity": 1,
     "daker": 0,
-    "thinkyou": 3,
-    "coworker": 2,
+    "thinkyou": 2,
+    "coworker": 0,
     "contestkorea": 6
   },
-  "partial_digest_date": "2026-11-23",
+  "partial_digest_date": "2026-11-24",
   "partial_digest_ids": [],
   "contests": [
     {
