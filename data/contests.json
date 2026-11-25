@@ -1,13 +1,13 @@
 {
-  "updated_at": "2026-11-25T08:14:05.443740",
+  "updated_at": "2026-11-25T14:39:36.885757",
   "last_digest_date": "2026-11-25",
   "last_test_digest_date": "2026-11-22",
   "source_counts": {
     "wevity": 2,
     "daker": 0,
-    "thinkyou": 1,
+    "thinkyou": 2,
     "coworker": 2,
-    "contestkorea": 4
+    "contestkorea": 6
   },
   "partial_digest_date": null,
   "partial_digest_ids": [],
@@ -387,7 +387,7 @@
       "category": "학문•과학•IT",
       "target": "대학생\t\t\t\t\t\t\t\t\t\t\t, \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t대학원생\t\t\t\t\t\t\t\t\t\t\t, \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t일반인\t\t\t\t\t\t\t\t\t\t\t, \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t외국인",
       "apply_start": "2026-11-16",
-      "apply_end": "2026-11-28",
+      "apply_end": "2026-12-12",
       "event_date": null,
       "url": "https://www.contestkorea.com/sub/view.php?int_gbn=1&Txt_bcode=030310001&str_no=202611160001",
       "description": "",
@@ -494,6 +494,23 @@
       "alert_history": [
         "NEW"
       ]
+    },
+    {
+      "id": "1eab3028195bf17c",
+      "title": "AI·공공데이터·정보공개 대국민 혁신 아이디어 공모전",
+      "organizer": "국토안전관리원",
+      "category": "아이디어/마케팅, 과학/공학",
+      "target": "대한민국 국민 누구나",
+      "apply_start": "2026-11-23",
+      "apply_end": "2026-12-10",
+      "event_date": null,
+      "url": "https://bigtori.kalis.or.kr",
+      "description": "AI 부문 : KALIS 주요 사업에 AI를 접목한 업무 효율화 및 AX 방안 발굴 공공데이터 부문 : AI 활용 및 국민 수요를 고려한 고가치 데이터 개방 확대와 이용 활성화 방안 발굴 정보공개 부문 : 수요자 중심의 정보공개 정책 운영을 위한 신규 아이디어 탐색 및 문제점 발굴",
+      "source": "thinkyou",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-25T14:38:32.175036",
+      "last_alert_at": null,
+      "alert_history": []
     }
   ]
 }
