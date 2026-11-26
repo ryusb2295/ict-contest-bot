@@ -183,26 +183,31 @@ class TestBotIntegration(unittest.TestCase):
             bot.storage = bot.storage.__class__(test_db)
 
             # Mock collector to return our test candidates
-            with patch.object(bot.collector, "collect", return_value=[cand1, cand2]):
-                # Mock Discord client to simulate successful send
-                with patch.object(bot.discord, "_post_payload", return_value=(True, "SUCCESS")):
-                    # Execute bot run
-                    results = bot.run(dry_run=False)
+            with patch("src.bot.get_current_kst_date", return_value=date(2026, 11, 18)):
+                with patch("src.discord.get_current_kst_date", return_value=date(2026, 11, 18)):
+                    self._run_full_pipeline_assertions(bot, cand1, cand2, test_db)
 
-                    # Verify results
-                    self.assertEqual(results["collected_raw"], 2)
-                    self.assertEqual(results["filtered_valid"], 1)  # cand2 filtered out
-                    self.assertEqual(results["new_contests"], 1)
-                    self.assertEqual(results["total_stored"], 1)
-                    self.assertEqual(len(results["errors"]), 0)
+    def _run_full_pipeline_assertions(self, bot, cand1, cand2, test_db):
+        with patch.object(bot.collector, "collect", return_value=[cand1, cand2]):
+            # Mock Discord client to simulate successful send
+            with patch.object(bot.discord, "_post_payload", return_value=(True, "SUCCESS")):
+                # Execute bot run
+                results = bot.run(dry_run=False)
 
-                    # Verify that state was written to disk
-                    self.assertTrue(test_db.exists())
-                    with open(test_db, "r", encoding="utf-8") as f:
-                        saved_data = json.load(f)
-                        self.assertEqual(len(saved_data["contests"]), 1)
-                        self.assertEqual(saved_data["contests"][0]["title"], "2026 전국 대학생 AI 해커톤")
-                        self.assertIn("NEW", saved_data["contests"][0]["alert_history"])
+                # Verify results
+                self.assertEqual(results["collected_raw"], 2)
+                self.assertEqual(results["filtered_valid"], 1)  # cand2 filtered out
+                self.assertEqual(results["new_contests"], 1)
+                self.assertEqual(results["total_stored"], 1)
+                self.assertEqual(len(results["errors"]), 0)
+
+                # Verify that state was written to disk
+                self.assertTrue(test_db.exists())
+                with open(test_db, "r", encoding="utf-8") as f:
+                    saved_data = json.load(f)
+                    self.assertEqual(len(saved_data["contests"]), 1)
+                    self.assertEqual(saved_data["contests"][0]["title"], "2026 전국 대학생 AI 해커톤")
+                    self.assertIn("NEW", saved_data["contests"][0]["alert_history"])
 
     def test_bot_dry_run_does_not_mutate_storage(self):
         """Verify that dry-run mode does not touch storage file."""
