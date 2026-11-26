@@ -1,13 +1,13 @@
 {
-  "updated_at": "2026-11-25T14:39:36.885757",
-  "last_digest_date": "2026-11-25",
+  "updated_at": "2026-11-26T13:52:39.581589",
+  "last_digest_date": "2026-11-26",
   "last_test_digest_date": "2026-11-22",
   "source_counts": {
-    "wevity": 2,
+    "wevity": 5,
     "daker": 0,
     "thinkyou": 2,
     "coworker": 2,
-    "contestkorea": 6
+    "contestkorea": 7
   },
   "partial_digest_date": null,
   "partial_digest_ids": [],
@@ -180,7 +180,7 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-18T20:09:56.830713+09:00",
-      "last_alert_at": "2026-11-25T08:14:05.442322",
+      "last_alert_at": "2026-11-26T13:52:39.580073",
       "alert_history": [
         "NEW"
       ]
@@ -199,7 +199,7 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-18T20:09:56.830713+09:00",
-      "last_alert_at": "2026-11-25T08:14:05.442328",
+      "last_alert_at": "2026-11-26T13:52:39.580080",
       "alert_history": [
         "NEW",
         "D-7"
@@ -297,10 +297,11 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-20T16:15:01.032049+09:00",
-      "last_alert_at": "2026-11-25T08:14:05.442319",
+      "last_alert_at": "2026-11-26T13:52:39.581549",
       "alert_history": [
         "NEW",
-        "D-7"
+        "D-7",
+        "D-3"
       ]
     },
     {
@@ -317,7 +318,7 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-21T16:06:47.270424+09:00",
-      "last_alert_at": "2026-11-25T08:14:05.442324",
+      "last_alert_at": "2026-11-26T13:52:39.580076",
       "alert_history": [
         "NEW"
       ]
@@ -336,10 +337,11 @@
       "source": "thinkyou",
       "status": "ACTIVE",
       "discovered_at": "2026-11-22T05:52:51.242828",
-      "last_alert_at": "2026-11-25T08:14:05.442314",
+      "last_alert_at": "2026-11-26T13:52:39.581541",
       "alert_history": [
         "NEW",
-        "D-7"
+        "D-7",
+        "D-3"
       ]
     },
     {
@@ -356,7 +358,7 @@
       "source": "coworker",
       "status": "ACTIVE",
       "discovered_at": "2026-11-22T16:06:05.711320",
-      "last_alert_at": "2026-11-25T08:14:05.442338",
+      "last_alert_at": "2026-11-26T13:52:39.580096",
       "alert_history": [
         "NEW"
       ]
@@ -375,7 +377,7 @@
       "source": "contestkorea",
       "status": "ACTIVE",
       "discovered_at": "2026-11-22T16:06:16.179911",
-      "last_alert_at": "2026-11-25T08:14:05.442343",
+      "last_alert_at": "2026-11-26T13:52:39.580104",
       "alert_history": [
         "NEW"
       ]
@@ -394,7 +396,7 @@
       "source": "contestkorea",
       "status": "ACTIVE",
       "discovered_at": "2026-11-22T16:06:17.430949",
-      "last_alert_at": "2026-11-25T08:14:05.443706",
+      "last_alert_at": "2026-11-26T13:52:39.580098",
       "alert_history": [
         "NEW",
         "D-3"
@@ -414,7 +416,7 @@
       "source": "contestkorea",
       "status": "ACTIVE",
       "discovered_at": "2026-11-22T16:06:20.008757",
-      "last_alert_at": "2026-11-25T08:14:05.442333",
+      "last_alert_at": "2026-11-26T13:52:39.580083",
       "alert_history": [
         "NEW"
       ]
@@ -433,7 +435,7 @@
       "source": "contestkorea",
       "status": "ACTIVE",
       "discovered_at": "2026-11-22T16:06:22.573067",
-      "last_alert_at": "2026-11-25T08:14:05.442340",
+      "last_alert_at": "2026-11-26T13:52:39.580100",
       "alert_history": [
         "NEW"
       ]
@@ -452,9 +454,10 @@
       "source": "coworker",
       "status": "ACTIVE",
       "discovered_at": "2026-11-23T16:38:51.254189",
-      "last_alert_at": "2026-11-25T08:14:05.442317",
+      "last_alert_at": "2026-11-26T13:52:39.581546",
       "alert_history": [
-        "NEW"
+        "NEW",
+        "D-3"
       ]
     },
     {
@@ -490,7 +493,7 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-25T08:13:01.843898+09:00",
-      "last_alert_at": "2026-11-25T08:14:05.443712",
+      "last_alert_at": "2026-11-26T13:52:39.580092",
       "alert_history": [
         "NEW"
       ]
@@ -509,8 +512,67 @@
       "source": "thinkyou",
       "status": "ACTIVE",
       "discovered_at": "2026-11-25T14:38:32.175036",
-      "last_alert_at": null,
-      "alert_history": []
+      "last_alert_at": "2026-11-26T13:52:39.581560",
+      "alert_history": [
+        "NEW"
+      ]
+    },
+    {
+      "id": "546d1dded98436ce",
+      "title": "한전KPS AI 활용 전력설비 정비 및 안전지원 서비스 아이디어 공모전",
+      "organizer": "한전KPS",
+      "category": "기획/아이디어",
+      "target": "제한없음, 기타",
+      "apply_start": "2026-11-23",
+      "apply_end": "2026-12-06",
+      "event_date": null,
+      "url": "https://www.kps.co.kr/web/Board/47820/detailView.do?pageIndex=1&menu=2467",
+      "description": "",
+      "source": "wevity",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-26T13:51:32.295740+09:00",
+      "last_alert_at": "2026-11-26T13:52:39.581556",
+      "alert_history": [
+        "NEW"
+      ]
+    },
+    {
+      "id": "88b4be8971108dd3",
+      "title": "2026 제5회 대국민 K-water AI 경진대회신규",
+      "organizer": "한국수자원공사 / 상상력집단",
+      "category": "웹/모바일/IT",
+      "target": "제한없음",
+      "apply_start": "2026-11-25",
+      "apply_end": "2026-12-06",
+      "event_date": null,
+      "url": "https://hackathon.imaginationgroup.co.kr/kwater",
+      "description": "",
+      "source": "wevity",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-26T13:51:32.295740+09:00",
+      "last_alert_at": "2026-11-26T13:52:39.581553",
+      "alert_history": [
+        "NEW"
+      ]
+    },
+    {
+      "id": "bfac252ad71d8f67",
+      "title": "빅데이터 공모전 연합동아리 LOGICAL",
+      "organizer": "LOGICAL",
+      "category": "대외/봉사활동",
+      "target": "대학생",
+      "apply_start": "2026-03-01",
+      "apply_end": "2026-12-31",
+      "event_date": null,
+      "url": "https://docs.google.com/forms/d/e/1FAIpQLSdrdnGnaqUsKpmN33-RP1ZmH8E2VsgDFI5CxDgU_BUmqCaegA/viewform",
+      "description": "응모주제 대외/봉사활동 모집개요 (상시모집) - 안녕하세요! 데이터에 대한 열정과 호기심을 가진 여러분을 위한 빅데이터 공모전 대학 연합동아리를 소개합니다! 우리 LOGICAL은 다양한 전공의 학생들이 모여 데이터 분석의 재미를 함께 나누고, 여러 공모전에서의 실질적 성과와 목표로 활동하는 동아리입니다. 데이터의 힘을 통해 사회의 다양한 문제를 해결하고, 실질적인 경험을 쌓고자 하는 모든 분들을 환영합니다! 활동내용 - 정기 회의 : 매주 정기적으로 모여 프로젝트 진행 상황을 공유하며 아이디어를 논의합니다! 각 팀은 자신의 진행 상황을 발표하고, 다른 팀원들로부터 피드백을 받아 더욱 발전할 수 있는 기회를 가집니다! - 프로젝트 주제 선정: 공모전 참가를 위한 데이터 분석 주제를 선정하고, 팀을 구성하여 프",
+      "source": "coworker",
+      "status": "ACTIVE",
+      "discovered_at": "2026-11-26T13:52:07.426288",
+      "last_alert_at": "2026-11-26T13:52:39.581562",
+      "alert_history": [
+        "NEW"
+      ]
     }
   ]
 }
