@@ -1,13 +1,13 @@
 {
-  "updated_at": "2026-11-26T13:52:39.581589",
-  "last_digest_date": "2026-11-26",
+  "updated_at": "2026-11-27T13:55:27.487215",
+  "last_digest_date": "2026-11-27",
   "last_test_digest_date": "2026-11-22",
   "source_counts": {
     "wevity": 5,
     "daker": 0,
     "thinkyou": 2,
-    "coworker": 2,
-    "contestkorea": 7
+    "coworker": 3,
+    "contestkorea": 6
   },
   "partial_digest_date": null,
   "partial_digest_ids": [],
@@ -180,9 +180,10 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-18T20:09:56.830713+09:00",
-      "last_alert_at": "2026-11-26T13:52:39.580073",
+      "last_alert_at": "2026-11-27T13:55:27.487182",
       "alert_history": [
-        "NEW"
+        "NEW",
+        "D-3"
       ]
     },
     {
@@ -199,7 +200,7 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-18T20:09:56.830713+09:00",
-      "last_alert_at": "2026-11-26T13:52:39.580080",
+      "last_alert_at": "2026-11-27T13:55:27.485366",
       "alert_history": [
         "NEW",
         "D-7"
@@ -297,7 +298,7 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-20T16:15:01.032049+09:00",
-      "last_alert_at": "2026-11-26T13:52:39.581549",
+      "last_alert_at": "2026-11-27T13:55:27.485349",
       "alert_history": [
         "NEW",
         "D-7",
@@ -318,9 +319,10 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-21T16:06:47.270424+09:00",
-      "last_alert_at": "2026-11-26T13:52:39.580076",
+      "last_alert_at": "2026-11-27T13:55:27.487187",
       "alert_history": [
-        "NEW"
+        "NEW",
+        "D-3"
       ]
     },
     {
@@ -337,7 +339,7 @@
       "source": "thinkyou",
       "status": "ACTIVE",
       "discovered_at": "2026-11-22T05:52:51.242828",
-      "last_alert_at": "2026-11-26T13:52:39.581541",
+      "last_alert_at": "2026-11-27T13:55:27.485303",
       "alert_history": [
         "NEW",
         "D-7",
@@ -358,7 +360,7 @@
       "source": "coworker",
       "status": "ACTIVE",
       "discovered_at": "2026-11-22T16:06:05.711320",
-      "last_alert_at": "2026-11-26T13:52:39.580096",
+      "last_alert_at": "2026-11-27T13:55:27.485384",
       "alert_history": [
         "NEW"
       ]
@@ -377,7 +379,7 @@
       "source": "contestkorea",
       "status": "ACTIVE",
       "discovered_at": "2026-11-22T16:06:16.179911",
-      "last_alert_at": "2026-11-26T13:52:39.580104",
+      "last_alert_at": "2026-11-27T13:55:27.485392",
       "alert_history": [
         "NEW"
       ]
@@ -396,7 +398,7 @@
       "source": "contestkorea",
       "status": "ACTIVE",
       "discovered_at": "2026-11-22T16:06:17.430949",
-      "last_alert_at": "2026-11-26T13:52:39.580098",
+      "last_alert_at": "2026-11-27T13:55:27.485386",
       "alert_history": [
         "NEW",
         "D-3"
@@ -416,9 +418,10 @@
       "source": "contestkorea",
       "status": "ACTIVE",
       "discovered_at": "2026-11-22T16:06:20.008757",
-      "last_alert_at": "2026-11-26T13:52:39.580083",
+      "last_alert_at": "2026-11-27T13:55:27.487190",
       "alert_history": [
-        "NEW"
+        "NEW",
+        "D-7"
       ]
     },
     {
@@ -435,7 +438,7 @@
       "source": "contestkorea",
       "status": "ACTIVE",
       "discovered_at": "2026-11-22T16:06:22.573067",
-      "last_alert_at": "2026-11-26T13:52:39.580100",
+      "last_alert_at": "2026-11-27T13:55:27.485388",
       "alert_history": [
         "NEW"
       ]
@@ -454,7 +457,7 @@
       "source": "coworker",
       "status": "ACTIVE",
       "discovered_at": "2026-11-23T16:38:51.254189",
-      "last_alert_at": "2026-11-26T13:52:39.581546",
+      "last_alert_at": "2026-11-27T13:55:27.485346",
       "alert_history": [
         "NEW",
         "D-3"
@@ -493,7 +496,7 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-25T08:13:01.843898+09:00",
-      "last_alert_at": "2026-11-26T13:52:39.580092",
+      "last_alert_at": "2026-11-27T13:55:27.485380",
       "alert_history": [
         "NEW"
       ]
@@ -512,7 +515,7 @@
       "source": "thinkyou",
       "status": "ACTIVE",
       "discovered_at": "2026-11-25T14:38:32.175036",
-      "last_alert_at": "2026-11-26T13:52:39.581560",
+      "last_alert_at": "2026-11-27T13:55:27.485382",
       "alert_history": [
         "NEW"
       ]
@@ -531,7 +534,7 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-26T13:51:32.295740+09:00",
-      "last_alert_at": "2026-11-26T13:52:39.581556",
+      "last_alert_at": "2026-11-27T13:55:27.485378",
       "alert_history": [
         "NEW"
       ]
@@ -550,7 +553,7 @@
       "source": "wevity",
       "status": "ACTIVE",
       "discovered_at": "2026-11-26T13:51:32.295740+09:00",
-      "last_alert_at": "2026-11-26T13:52:39.581553",
+      "last_alert_at": "2026-11-27T13:55:27.485376",
       "alert_history": [
         "NEW"
       ]
@@ -569,7 +572,7 @@
       "source": "coworker",
       "status": "ACTIVE",
       "discovered_at": "2026-11-26T13:52:07.426288",
-      "last_alert_at": "2026-11-26T13:52:39.581562",
+      "last_alert_at": "2026-11-27T13:55:27.485390",
       "alert_history": [
         "NEW"
       ]
